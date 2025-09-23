@@ -1,0 +1,97 @@
+
+name: Build and deploy snake
+
+on:
+  push:
+    tags: ["v*"]
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            rid: linux-x64
+            ext: ""
+            folder: linux
+            configuration: Release
+          - os: windows-latest
+            rid: win-x64
+            ext: ".exe"
+            folder: windows
+            configuration: Release
+          - os: macos-latest
+            rid: osx-x64
+            ext: ""
+            folder: macos
+            configuration: Release
+            
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # Autorise l'action à créer une release et à uploader des fichiers
+
+    # Checkout code
+    steps:
+    # Préparation
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # Install the .NET Core workload
+      - name: Install .NET Core
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      # Windows (64-bit)
+      - name: Publish for ${{ matrix.rid }}
+        run: dotnet publish --configuration ${{ matrix.configuration }} --runtime ${{ matrix.rid }} --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true
+        # --self-contained : inclut le runtime .NET pour que le jeu fonctionne partout
+        # /p:PublishSingleFile=true : crée un seul fichier .exe, c'est plus propre !
+
+      # --- 3. Archivage des binaires ---
+
+      # Crée une archive .zip pour chaque binaire et ses assets
+      # On doit d'abord trouver le nom du projet, qui est le nom du fichier .csproj
+      - name: Get project name
+        id: get_project_name
+        run: echo "project_name=snake-online-prototype" >> $GITHUB_ENV
+
+      - name: Archive ${{ matrix.folder }} release
+        run: |
+          mkdir -p release/${{ matrix.folder }}
+          cp Game/bin/${{ matrix.configuration }}/net8.0/${{ matrix.rid }}/publish/${{ env.project_name }}${{ matrix.ext }} release/${{ matrix.folder }}/
+          cd release/${{ matrix.folder }} && zip -r ../${{ env.project_name }}-${{ matrix.folder }}-${{ github.ref_name }}-x64.zip .
+      
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: snake-builds-${{ matrix.folder }}
+          path: release/*.zip
+
+      # --- 4. Création de la Release sur GitHub ---
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: snake-builds-*
+          path: release
+      # Utilise une action de la communauté pour créer une Release et y attacher les .zip
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          # Utilise le contenu du tag (ex: v1.0) comme nom de la release
+          name: Release ${{ github.ref_name }}
+          # Génère automatiquement le texte de la release à partir des derniers commits
+          generate_release_notes: true
+          # Les fichiers à uploader
+          files: |
+            release/snake-builds-linux/snake-online-prototype-linux-${{ github.ref_name }}-x64.zip
+            release/snake-builds-windows/snake-online-prototype-windows-${{ github.ref_name }}-x64.zip
+            release/snake-builds-macos/snake-online-prototype-macos-${{ github.ref_name }}-x64.zip
+          overwrite_files: true
+          make_latest: true

@@ -1,0 +1,17 @@
+name: Run tests
+
+on:
+  push:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Run tests action
+      uses: ./.github/actions/run-tests
+      with:
+        dotnet-version: '8.0.x'

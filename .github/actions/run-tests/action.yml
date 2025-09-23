@@ -1,0 +1,35 @@
+name: "Run tests"
+description: "A composite action to run all our tests and check that we don't have problems in our git."
+
+inputs:
+  dotnet-version:
+    description: "The dotnet version to use to run our tests"
+    required: true
+
+runs:
+  using: "composite"
+
+  steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    
+    - name: Install .NET Core
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ inputs.dotnet-version }}
+
+    - name: Restore dependencies
+      run: dotnet restore
+      shell: bash
+
+    - name: Build
+      run: dotnet build --no-restore
+      shell: bash
+
+    - name: Run tests
+      run: dotnet test --no-build --verbosity normal
+      shell: bash
+
+    - id: run-script
+      run: echo "result=Success" >> $GITHUB_OUTPUT
+      shell: bash
