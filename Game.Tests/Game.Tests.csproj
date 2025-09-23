@@ -2,6 +2,9 @@
   <ItemGroup>
     <ProjectReference Include="..\Game\snake-online-prototype.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="MSTest" Version="3.10.4" />
+  </ItemGroup>
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net8.0</TargetFramework>
