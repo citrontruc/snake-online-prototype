@@ -42,6 +42,8 @@ public class MainMenu : Menu
 
         AddOption("Play Game", LoadLevel);
         AddOption("Play Tutorial", LoadTutorial);
+        AddOption("Create Online Game", LoadLevel);
+        AddOption("Join Online Game", LoadLevel);
         AddOption("Quit Game", CloseWindow);
         _selectedOption = 0;
         ServiceLocator.Register<MainMenu>(this);
