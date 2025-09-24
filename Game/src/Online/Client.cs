@@ -22,7 +22,8 @@ class SnakeClient
             while (true)
             {
                 int bytesRead = stream.Read(buffer, 0, buffer.Length);
-                if (bytesRead == 0) break;
+                if (bytesRead == 0)
+                    break;
                 string msg = Encoding.UTF8.GetString(buffer, 0, bytesRead);
                 Console.WriteLine("Server says: " + msg);
             }
