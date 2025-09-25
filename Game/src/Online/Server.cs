@@ -53,7 +53,7 @@ public class SnakeServer
             else
             {
                 Console.WriteLine("Too many players");
-                client.Close();  
+                client.Close();
             }
         }
         else
@@ -82,7 +82,7 @@ public class SnakeServer
                     Console.WriteLine("Client says: " + msg);
                 }
             }).Start();
-        }        
+        }
 
         // Send commands manually (for testing)
         while (true)
