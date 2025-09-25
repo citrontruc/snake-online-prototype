@@ -6,16 +6,16 @@ using Raylib_cs;
 public class MainMenu : Menu
 {
     #region Related objects
-    private Level1 _level1 => ServiceLocator.Get<Level1>();
+    private HostLobby _hostLobby => ServiceLocator.Get<HostLobby>();
+    private JoinLobby _joinLobby => ServiceLocator.Get<JoinLobby>();
     private SceneHandler _sceneHandler => ServiceLocator.Get<SceneHandler>();
-    private Tutorial _tutorial => ServiceLocator.Get<Tutorial>();
     #endregion
 
     /// <summary>
     /// We initilialize our main menu.
     /// </summary>
     public MainMenu()
-        : base("Twin Snakes")
+        : base("Snake Online!!!")
     {
         Vector2 titlePosition = new(_screenWidth / 2, _screenHeight / 3);
         Vector2 optionPosition = new(_screenWidth / 2, 2 * _screenHeight / 3);
@@ -23,7 +23,7 @@ public class MainMenu : Menu
         SetBackgroundcharacteristics(Color.Black);
 
         SetMenuTitleCharacteristics(
-            "Twin Snakes",
+            "Snake Online!!!",
             titlePosition,
             _screenHeight / 10,
             Color.White,
@@ -40,10 +40,8 @@ public class MainMenu : Menu
 
         SetSelectedOptionCharacteristics(1.2f, Color.Red);
 
-        AddOption("Play Game", LoadLevel);
-        AddOption("Play Tutorial", LoadTutorial);
-        AddOption("Create Online Game", LoadLevel);
-        AddOption("Join Online Game", LoadLevel);
+        AddOption("Create Online Game", HostLobby);
+        AddOption("Join Online Game", JoinLobby);
         AddOption("Quit Game", CloseWindow);
         _selectedOption = 0;
         ServiceLocator.Register<MainMenu>(this);
@@ -62,14 +60,14 @@ public class MainMenu : Menu
         Raylib.CloseWindow();
     }
 
-    private void LoadLevel()
+    private void HostLobby()
     {
-        _sceneHandler.SetNewScene(_level1);
+        _sceneHandler.SetNewScene(_hostLobby);
     }
 
-    public void LoadTutorial()
+    private void JoinLobby()
     {
-        _sceneHandler.SetNewScene(_tutorial);
+        _sceneHandler.SetNewScene(_joinLobby);
     }
     #endregion
 }

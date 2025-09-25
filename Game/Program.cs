@@ -4,6 +4,7 @@ public class Game
 {
     public static void Main()
     {
+        DotNetVariables dotnetVariables = new(); 
         Console.WriteLine("Type l to launch and j to join.");
         string userInput = new("");
         while (userInput != "l" && userInput != "j")

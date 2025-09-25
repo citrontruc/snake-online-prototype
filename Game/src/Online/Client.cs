@@ -5,12 +5,19 @@ using System.Threading;
 
 class SnakeClient
 {
+    private static DotNetVariables _dotNetVariables => ServiceLocator.Get<DotNetVariables>();
+
+    public SnakeClient()
+    {
+        ServiceLocator.Register<SnakeClient>(this);
+    }
+
     public static void JoinServer()
     {
         Console.Write("Enter server IP: ");
         string serverIp = Console.ReadLine() ?? "";
 
-        TcpClient client = new TcpClient(serverIp, 5000);
+        TcpClient client = new TcpClient(_dotNetVariables.ServerIP, _dotNetVariables.ServerPort);
         Console.WriteLine("Connected to server!");
 
         NetworkStream stream = client.GetStream();
