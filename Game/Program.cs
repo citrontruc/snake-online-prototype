@@ -13,7 +13,13 @@ public class Game
         }
         if (userInput == "l")
         {
-            SnakeServer.LaunchServer();
+            SnakeServer snakeServer = new();
+            snakeServer.LaunchServer();
+            for (int i = 0; i < 2; i++)
+            {
+                snakeServer.ConnectToClient();
+            }
+            snakeServer.CreateClientThreads();
         }
         else
         {

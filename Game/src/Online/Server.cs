@@ -11,6 +11,8 @@ public class SnakeServer
     private TcpListener _server;
     private List<TcpClient> _clients = new();
     private ConcurrentDictionary<int, string> _latestInputs = new();
+    private int _maxPlayers = 3;
+    private int _currentPlayers = 0;
 
     public SnakeServer()
     {
@@ -22,55 +24,76 @@ public class SnakeServer
     {
         _server.Start();
         Console.WriteLine("Server started. Waiting for client...");
-
-        TcpClient client = _server.AcceptTcpClient();
-        Console.WriteLine("Client connected!");
-
-        NetworkStream stream = client.GetStream();
-
-        // Run in a background thread to receive commands
-        new Thread(() =>
-        {
-            byte[] buffer = new byte[256];
-            while (true)
-            {
-                int bytesRead = stream.Read(buffer, 0, buffer.Length);
-                if (bytesRead == 0)
-                    break;
-                string msg = Encoding.UTF8.GetString(buffer, 0, bytesRead);
-                Console.WriteLine("Client says: " + msg);
-            }
-        }).Start();
-
-        // Send commands manually (for testing)
-        while (true)
-        {
-            string cmd = Console.ReadLine() ?? "";
-            byte[] data = Encoding.UTF8.GetBytes(cmd);
-            stream.Write(data, 0, data.Length);
-        }
     }
 
+    /// <summary>
+    /// We accept a client connection and check that the client has the right session name.
+    /// If the session name is incorrect, we refuse the connection.
+    /// </summary>
     public void ConnectToClient()
     {
         TcpClient client = _server.AcceptTcpClient();
         Console.WriteLine("Client connected!");
+        NetworkStream stream = client.GetStream();
+
+        // A new client must always specify the session name before connecting.
+        byte[] buffer = new byte[256];
+        int bytesRead = stream.Read(buffer, 0, buffer.Length);
+        string msg = Encoding.UTF8.GetString(buffer, 0, bytesRead);
+
+        // We accept clients with the correct session name and refuse other clients.
+        if (msg == _dotNetVariables.SessionName)
+        {
+            if (_currentPlayers + 1 < _maxPlayers)
+            {
+                Console.WriteLine("✅ Correct session name, client accepted");
+                _clients.Add(client);
+                _currentPlayers++;
+            }
+            else
+            {
+                Console.WriteLine("Too many players");
+                client.Close();  
+            }
+        }
+        else
+        {
+            Console.WriteLine(msg);
+            Console.WriteLine(_dotNetVariables.SessionName);
+            Console.WriteLine("❌ Wrong session name, closing connection");
+            client.Close();
+        }
     }
 
-    public void CheckClientConnection(TcpClient client)
+    public void CreateClientThreads()
     {
-        NetworkStream stream = client.GetStream();
-        new Thread(() =>
+        foreach (TcpClient client in _clients)
         {
-            byte[] buffer = new byte[256];
-            while (true)
+            NetworkStream stream = client.GetStream();
+            new Thread(() =>
             {
-                int bytesRead = stream.Read(buffer, 0, buffer.Length);
-                if (bytesRead == 0)
-                    break;
-                string msg = Encoding.UTF8.GetString(buffer, 0, bytesRead);
-                Console.WriteLine("Client says: " + msg);
+                byte[] buffer = new byte[256];
+                while (true)
+                {
+                    int bytesRead = stream.Read(buffer, 0, buffer.Length);
+                    if (bytesRead == 0)
+                        break;
+                    string msg = Encoding.UTF8.GetString(buffer, 0, bytesRead);
+                    Console.WriteLine("Client says: " + msg);
+                }
+            }).Start();
+        }        
+
+        // Send commands manually (for testing)
+        while (true)
+        {
+            foreach (var kvp in _latestInputs)
+            {
+                int player = kvp.Key;
+                string message = kvp.Value;
+                Console.WriteLine($"{player.ToString()} {message}");
             }
-        }).Start();
+            Thread.Sleep(100);
+        }
     }
 }
