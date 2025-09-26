@@ -6,6 +6,7 @@ public class JoinLobby : Menu
     #region Related objects
     private SceneHandler _sceneHandler => ServiceLocator.Get<SceneHandler>();
     private MainMenu _mainMenu => ServiceLocator.Get<MainMenu>();
+    private SnakeClient _snakeClient => ServiceLocator.Get<SnakeClient>();
     private OnlineLevel _onlineLevel => ServiceLocator.Get<OnlineLevel>();
     #endregion
 
@@ -40,7 +41,7 @@ public class JoinLobby : Menu
 
         SetSelectedOptionCharacteristics(1.2f, Color.Red);
 
-        AddOption("Confirm", ConfirmInformation);
+        AddOption("Search for Game", SearchForGame);
         AddOption("Back to menu", ReturnToMainMenu);
         _selectedOption = 0;
 
@@ -54,6 +55,12 @@ public class JoinLobby : Menu
     public override void Update(float deltaTime) { }
 
     #region Scene Transitions
+    public void SearchForGame()
+    {
+        // Tenter de se connecter. Si succès, on se lance.
+        //_snakeClient
+        ConfirmInformation();
+    }
     public void ConfirmInformation()
     {
         _onlineLevel.SetPlayerRole(OnlineLevel.PlayerRole.Client);

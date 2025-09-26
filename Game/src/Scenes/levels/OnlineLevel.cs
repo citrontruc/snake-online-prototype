@@ -5,7 +5,7 @@ using Raylib_cs;
 public class OnlineLevel : Level
 {
     private int _appleCount = 0;
-    private int _playerNumber = 0;
+    private int _playerNumber = 2;
     private PlayerRole _playerRole = PlayerRole.Client;
 
     public enum PlayerRole

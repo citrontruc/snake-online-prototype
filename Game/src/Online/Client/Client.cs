@@ -14,12 +14,7 @@ class SnakeClient
 
     public static void JoinServer()
     {
-        Console.Write("Enter server IP: ");
-        string serverIp = Console.ReadLine() ?? "";
-
         TcpClient client = new TcpClient(_dotNetVariables.ServerIP, _dotNetVariables.ServerPort);
-        Console.WriteLine("Connected to server!");
-
         NetworkStream stream = client.GetStream();
 
         // Background thread to receive commands

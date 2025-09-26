@@ -11,6 +11,7 @@ public class HostLobby : Menu
 
     private SnakeServer _snakeServer => ServiceLocator.Get<SnakeServer>();
     private int _numPlayers = 0;
+    private bool _hasPlayers = false;
     private string _serverPassKey = "";
     int playerNumber = 0;
     private Rectangle _textBox = new(_screenWidth / 2.0f - 100, 180, _screenHeight / 2, 50);
@@ -43,7 +44,6 @@ public class HostLobby : Menu
 
         SetSelectedOptionCharacteristics(1.2f, Color.Red);
 
-        AddOption("Start Game", ConfirmInformation);
         AddOption("Back to menu", ReturnToMainMenu);
         _selectedOption = 0;
     }
@@ -76,7 +76,13 @@ public class HostLobby : Menu
         return passKey;
     }
 
-    public override void Update(float deltaTime) { }
+    public override void Update(float deltaTime)
+    {
+        if (_hasPlayers)
+        {
+            AddOption("Start Game", ConfirmInformation);
+        }
+    }
 
     #region Scene Transitions
     public void ConfirmInformation()
