@@ -19,6 +19,7 @@ public class Snake : Entity
     #region Coordinate variables
     public Queue<CellCoordinates> SnakeBody { get; private set; } = new();
     private CellCoordinates _currentDirection = CellCoordinates.right;
+    private CellCoordinates _previousDirection = CellCoordinates.right;
 
     public CellCoordinates head => SnakeBody.Last();
     public CellCoordinates tail => SnakeBody.First();
@@ -75,6 +76,7 @@ public class Snake : Entity
         if (isMoving)
         {
             Move();
+            _previousDirection = _currentDirection;
             if (IsCollidingWithItself())
             {
                 _currentState = EntityState.disabled;
@@ -88,7 +90,7 @@ public class Snake : Entity
     /// <param name="direction"> The direction to face.</param>
     public void ChangeDirection(CellCoordinates direction)
     {
-        if (direction == -_currentDirection || direction == CellCoordinates.zero)
+        if (direction == -_previousDirection || direction == CellCoordinates.zero)
             return;
         _currentDirection = direction;
     }
