@@ -7,8 +7,9 @@ public abstract class Message
         Update,
         ConnectionCreate,
         InitializeGame,
-        Disconnect
+        Disconnect,
     }
+
     protected MessageType _thisMessageType;
     public int PlayerId;
 }

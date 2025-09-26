@@ -3,14 +3,9 @@
 using System.Diagnostics.Tracing;
 using System.Text.Json;
 
-
 public static class MessageFactory
 {
-
-    static MessageFactory()
-    {
-
-    }
+    static MessageFactory() { }
 
     public static string ToJson(Message message)
     {
@@ -34,7 +29,7 @@ public static class MessageFactory
             {
                 Message.MessageType.Update => JsonSerializer.Deserialize<UpdateMessage>(json),
                 Message.MessageType.Disconnect => JsonSerializer.Deserialize<UpdateMessage>(json),
-                _ => throw new TypeAccessException($"Unknown message type: {type}")
+                _ => throw new TypeAccessException($"Unknown message type: {type}"),
             };
         }
         throw new TypeAccessException($"Unknown message type: {type}");

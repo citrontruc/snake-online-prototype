@@ -3,7 +3,8 @@ It contains the information for the board of the game as well as the id the play
 
 public class CreateConnectionGame : Message
 {
-    public string SessionName; 
+    public string SessionName;
+
     public CreateConnectionGame(string sessionName, int playerId)
     {
         _thisMessageType = MessageType.Update;

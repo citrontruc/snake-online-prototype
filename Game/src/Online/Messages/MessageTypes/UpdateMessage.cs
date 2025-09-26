@@ -4,6 +4,7 @@ Every client sends one of them to the server, the server sends multiple of them 
 public class UpdateMessage : Message
 {
     public UserInput userInput;
+
     public UpdateMessage(UserInput userInput, int playerId)
     {
         _thisMessageType = MessageType.Update;
