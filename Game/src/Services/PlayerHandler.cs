@@ -8,27 +8,15 @@ public class PlayerHandler
     private Grid? _levelGrid;
 
     #region Related objects
-    private Vector2 _playerPosition => _inputHandler.GetUserInput().MousePosition;
     private static InputHandler _inputHandler => ServiceLocator.Get<InputHandler>();
     #endregion
 
-    #region State information
-    private bool _pause = true;
-    private Queue<DirectionBlock> _blockQueue = new();
-    #endregion
-
     #region Draw properties
-    private int _triangleSideLength;
-    private Color _triangleColor;
-    private CellCoordinates _playerBlockDirection = CellCoordinates.right;
-    private Timer _blockTimer = new(.3f, true);
-    private bool _blockVisible;
+    private CellCoordinates _playerDirection = CellCoordinates.right;
     #endregion
 
-    public PlayerHandler(int triangleSideLength, Color triangleColor)
+    public PlayerHandler()
     {
-        _triangleSideLength = triangleSideLength;
-        _triangleColor = triangleColor;
         ServiceLocator.Register<PlayerHandler>(this);
     }
 
@@ -38,51 +26,15 @@ public class PlayerHandler
         _levelGrid = grid;
     }
 
-    public bool GetPause()
+    public CellCoordinates GetPlayerDirection()
     {
-        return _pause;
-    }
-
-    public int GetRemainingBlockCount()
-    {
-        return _blockQueue.Count;
-    }
-
-    public Queue<DirectionBlock> GetQueue()
-    {
-        return _blockQueue;
+        return _playerDirection;
     }
 
     public void Reset()
     {
-        _blockQueue = new();
-        _pause = true;
-    }
-    #endregion
-
-    #region Handle blockQueue
-    public void FillQueue()
-    {
-        if (_levelGrid is not null)
-        {
-            DirectionBlock directionBlock = new(
-                _playerBlockDirection,
-                _triangleSideLength,
-                CellCoordinates.zero,
-                _levelGrid,
-                this
-            );
-            AddToQueue(directionBlock);
-        }
-        else
-        {
-            throw new InvalidOperationException("No grid attached to the playerHandler!");
-        }
-    }
-
-    public void AddToQueue(DirectionBlock block)
-    {
-        _blockQueue.Enqueue(block);
+        _levelGrid = null;
+        _playerDirection = CellCoordinates.right;
     }
     #endregion
 
@@ -91,69 +43,30 @@ public class PlayerHandler
     {
         UserInput userInput = _inputHandler.GetUserInput();
         UpdateDirection(userInput);
-        _pause = userInput.Pause ? !_pause : _pause;
-        if (userInput.LeftClickPress)
-        {
-            CreateBlock();
-        }
-
-        // Update timers
-        bool timerOver = _blockTimer.Update(deltaTime);
-        if (timerOver)
-        {
-            _blockVisible = !_blockVisible;
-        }
     }
 
     private void UpdateDirection(UserInput userInput)
     {
         if (userInput.UpRelease)
         {
-            _playerBlockDirection = CellCoordinates.up;
+            _playerDirection = CellCoordinates.up;
         }
         if (userInput.DownRelease)
         {
-            _playerBlockDirection = CellCoordinates.down;
+            _playerDirection = CellCoordinates.down;
         }
         if (userInput.RightRelease)
         {
-            _playerBlockDirection = CellCoordinates.right;
+            _playerDirection = CellCoordinates.right;
         }
         if (userInput.LeftRelease)
         {
-            _playerBlockDirection = CellCoordinates.left;
-        }
-    }
-
-    private void CreateBlock()
-    {
-        if (_blockQueue.Any() && _levelGrid is not null)
-        {
-            if (_levelGrid.CheckIfInGrid(_playerPosition))
-            {
-                CellCoordinates blockCell = _levelGrid.ToGrid(_playerPosition);
-                if (_levelGrid.CheckIfEmptyCell(blockCell.X, blockCell.Y))
-                {
-                    DirectionBlock directionBlock = _blockQueue.Dequeue();
-                    directionBlock.Place(blockCell, _playerBlockDirection);
-                }
-            }
+            _playerDirection = CellCoordinates.left;
         }
     }
     #endregion
 
     #region Draw
-    public void Draw()
-    {
-        if (_blockVisible)
-        {
-            DrawTools.DrawFullTriangle(
-                _playerBlockDirection,
-                _playerPosition,
-                _triangleSideLength,
-                _triangleColor
-            );
-        }
-    }
+    public void Draw() { }
     #endregion
 }

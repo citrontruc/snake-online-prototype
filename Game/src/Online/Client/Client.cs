@@ -1,23 +1,28 @@
 using System;
-using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 
-class SnakeServer
+class SnakeClient
 {
-    public static void LaunchServer()
-    {
-        TcpListener server = new TcpListener(IPAddress.Any, 5000);
-        server.Start();
-        Console.WriteLine("Server started. Waiting for client...");
+    private static DotNetVariables _dotNetVariables => ServiceLocator.Get<DotNetVariables>();
 
-        TcpClient client = server.AcceptTcpClient();
-        Console.WriteLine("Client connected!");
+    public SnakeClient()
+    {
+        ServiceLocator.Register<SnakeClient>(this);
+    }
+
+    public static void JoinServer()
+    {
+        Console.Write("Enter server IP: ");
+        string serverIp = Console.ReadLine() ?? "";
+
+        TcpClient client = new TcpClient(_dotNetVariables.ServerIP, _dotNetVariables.ServerPort);
+        Console.WriteLine("Connected to server!");
 
         NetworkStream stream = client.GetStream();
 
-        // Run in a background thread to receive commands
+        // Background thread to receive commands
         new Thread(() =>
         {
             byte[] buffer = new byte[256];
@@ -27,7 +32,7 @@ class SnakeServer
                 if (bytesRead == 0)
                     break;
                 string msg = Encoding.UTF8.GetString(buffer, 0, bytesRead);
-                Console.WriteLine("Client says: " + msg);
+                Console.WriteLine("Server says: " + msg);
             }
         }).Start();
 

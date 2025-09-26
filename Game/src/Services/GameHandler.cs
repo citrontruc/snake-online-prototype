@@ -13,9 +13,7 @@ public static class GameHandler
     #region Display information
     private static readonly int _screenHeight = 600;
     private static readonly int _screenWidth = 800;
-    private static readonly int _blockSize = Math.Min(_screenHeight, _screenWidth) / 25;
     private static readonly int _targetFPS = 60;
-    private static Color _playerColor = Color.SkyBlue;
     #endregion
 
     #region Initialization
@@ -33,11 +31,14 @@ public static class GameHandler
 
     private static void InitiliazeServices()
     {
-        Tutorial tutorial = new();
         Level1 level1 = new();
         MainMenu mainMenu = new();
         GameOverMenu gameOverMenu = new();
-        PlayerHandler playerHandler = new((int)(_blockSize * 1 / 2), _playerColor);
+        PlayerHandler playerHandler = new();
+        DotNetVariables dotnetVariables = new();
+        HostLobby hostLobby = new();
+        JoinLobby joinLobby = new();
+        SnakeServer snakeServer = new();
         _inputHandler = new();
         _sceneHandler = new(mainMenu);
         _entityHandler = new();

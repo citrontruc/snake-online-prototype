@@ -8,16 +8,18 @@ public class Snake : Entity
     #region Related objects
     readonly Grid _snakeGrid;
     private EntityHandler _entityHandler => ServiceLocator.Get<EntityHandler>();
+    private PlayerHandler _playerHandler => ServiceLocator.Get<PlayerHandler>();
     #endregion
 
     #region Movement variables
-    private float _speed = 0.3f;
+    private float _speed = 00.5f;
     private Timer _movementTimer;
     #endregion
 
     #region Coordinate variables
     public Queue<CellCoordinates> SnakeBody { get; private set; } = new();
     private CellCoordinates _currentDirection = CellCoordinates.right;
+    private CellCoordinates _previousDirection = CellCoordinates.right;
 
     public CellCoordinates head => SnakeBody.Last();
     public CellCoordinates tail => SnakeBody.First();
@@ -69,10 +71,12 @@ public class Snake : Entity
     #region Actions and reactions
     public override void Update(float deltaTime)
     {
+        ChangeDirection(_playerHandler.GetPlayerDirection());
         bool isMoving = _movementTimer.Update(deltaTime);
         if (isMoving)
         {
             Move();
+            _previousDirection = _currentDirection;
             if (IsCollidingWithItself())
             {
                 _currentState = EntityState.disabled;
@@ -86,7 +90,7 @@ public class Snake : Entity
     /// <param name="direction"> The direction to face.</param>
     public void ChangeDirection(CellCoordinates direction)
     {
-        if (direction == -_currentDirection || direction == CellCoordinates.zero)
+        if (direction == -_previousDirection || direction == CellCoordinates.zero)
             return;
         _currentDirection = direction;
     }
@@ -115,13 +119,6 @@ public class Snake : Entity
             if (apple.GetPosition() == head)
             {
                 Growth();
-            }
-        }
-        if (entity is DirectionBlock block)
-        {
-            if (block.GetPosition() == head)
-            {
-                ChangeDirection(block.GetDirection());
             }
         }
     }

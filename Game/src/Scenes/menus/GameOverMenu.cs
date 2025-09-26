@@ -8,7 +8,6 @@ public class GameOverMenu : Menu
     #region Related objects
     private SceneHandler _sceneHandler => ServiceLocator.Get<SceneHandler>();
     private MainMenu _mainMenu => ServiceLocator.Get<MainMenu>();
-    private Level1 _level1 => ServiceLocator.Get<Level1>();
     #endregion
 
     /// <summary>
@@ -40,7 +39,6 @@ public class GameOverMenu : Menu
 
         SetSelectedOptionCharacteristics(1.2f, Color.Red);
 
-        AddOption("Retry Game", LoadLevel);
         AddOption("Back to Main Menu", LoadMainMenu);
         AddOption("Quit Game", CloseWindow);
         _selectedOption = 0;
@@ -63,11 +61,6 @@ public class GameOverMenu : Menu
     private void LoadMainMenu()
     {
         _sceneHandler.SetNewScene(_mainMenu);
-    }
-
-    private void LoadLevel()
-    {
-        _sceneHandler.SetNewScene(_level1);
     }
     #endregion
 }
