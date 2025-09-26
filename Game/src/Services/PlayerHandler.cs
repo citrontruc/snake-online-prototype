@@ -25,6 +25,7 @@ public class PlayerHandler
     {
         _levelGrid = grid;
     }
+
     public CellCoordinates GetPlayerDirection()
     {
         return _playerDirection;
@@ -66,8 +67,6 @@ public class PlayerHandler
     #endregion
 
     #region Draw
-    public void Draw()
-    {
-    }
+    public void Draw() { }
     #endregion
 }
