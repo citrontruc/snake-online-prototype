@@ -4,7 +4,7 @@ public class Game
 {
     public static void Main()
     {
-        DotNetVariables dotnetVariables = new();
+        GameHandler.Initiliaze();
         Console.WriteLine("Type l to launch and j to join.");
         string userInput = new("");
         while (userInput != "l" && userInput != "j")
@@ -13,13 +13,7 @@ public class Game
         }
         if (userInput == "l")
         {
-            SnakeServer snakeServer = new();
-            snakeServer.LaunchServer();
-            for (int i = 0; i < 2; i++)
-            {
-                snakeServer.ConnectToClient();
-            }
-            snakeServer.CreateClientThreads();
+            GameHandler.RunGame();
         }
         else
         {

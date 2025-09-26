@@ -32,6 +32,7 @@ public class SnakeServer
     /// </summary>
     public void ConnectToClient()
     {
+        Console.WriteLine("Waiting for clients to connect...");
         TcpClient client = _server.AcceptTcpClient();
         Console.WriteLine("Client connected!");
         NetworkStream stream = client.GetStream();

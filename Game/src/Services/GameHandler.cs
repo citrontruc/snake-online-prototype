@@ -33,11 +33,13 @@ public static class GameHandler
 
     private static void InitiliazeServices()
     {
-        Tutorial tutorial = new();
         Level1 level1 = new();
         MainMenu mainMenu = new();
         GameOverMenu gameOverMenu = new();
         PlayerHandler playerHandler = new((int)(_blockSize * 1 / 2), _playerColor);
+        DotNetVariables dotnetVariables = new();
+        HostLobby hostLobby = new();
+        SnakeServer snakeServer = new();
         _inputHandler = new();
         _sceneHandler = new(mainMenu);
         _entityHandler = new();
