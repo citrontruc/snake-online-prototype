@@ -3,7 +3,6 @@ using Raylib_cs;
 
 public class JoinLobby : Menu
 {
-
     #region Related objects
     private SceneHandler _sceneHandler => ServiceLocator.Get<SceneHandler>();
     private MainMenu _mainMenu => ServiceLocator.Get<MainMenu>();
@@ -12,7 +11,8 @@ public class JoinLobby : Menu
     private string _serverIP = "";
     private string _serverPassword = "";
     private int _letterCount => _serverIP.Count();
-    private Rectangle _textBox = new(_screenWidth/2.0f - 100, 180, _screenHeight / 2, 50);
+    private Rectangle _textBox = new(_screenWidth / 2.0f - 100, 180, _screenHeight / 2, 50);
+
     public JoinLobby()
         : base("Looking for lobbies...")
     {
@@ -50,26 +50,18 @@ public class JoinLobby : Menu
 
     public override void Unload() { }
 
-    public void Update()
-    {
+    public void Update() { }
 
-    }
-    
-    public void ConfirmInformation()
-    {
-
-    }
+    public void ConfirmInformation() { }
 
     public void ReturnToMainMenu()
     {
         _sceneHandler.SetNewScene(_mainMenu);
     }
 
-
     public override void Draw()
     {
         base.Draw();
         Raylib.DrawRectangleRec(_textBox, Color.Red);
     }
-
 }
