@@ -32,6 +32,20 @@ public class Level1 : Level
     private new Color _backGroundColor = Color.Black;
     #endregion
 
+    #region HUD Properties
+    private static string _title = "Endless mode";
+    private static int _titleFontSize = 20;
+    private int _titleX = (_screenWidth - Raylib.MeasureText(_title, _titleFontSize)) / 2;
+    private int _titleY = _screenHeight / 10;
+    private Color _titleColor = Color.Red;
+
+    private Color _hudColor = Color.White;
+    private int _hudY = (_screenHeight + _offsetY + _cellSize * _rows) / 2;
+    private static int _fontSize = 18;
+    private static int _gapSize = 10;
+    private static string _scoreTitle = "Apples Eaten:";
+    private int _scoreTitleX = _screenWidth / 2 - Raylib.MeasureText(_scoreTitle, _fontSize) / 2;
+    #endregion
 
     public Level1()
     {
@@ -132,6 +146,7 @@ public class Level1 : Level
     {
         DrawBackground();
         DrawGrid();
+        DrawHud();
         _playerHandler?.Draw();
     }
 
@@ -144,5 +159,20 @@ public class Level1 : Level
     {
         _level1Grid?.Draw();
     }
+
+    public void DrawHud()
+    {
+        Raylib.DrawText(_title, _titleX, _titleY, _titleFontSize, _titleColor);
+        Raylib.DrawText(_scoreTitle, _scoreTitleX, _hudY, _fontSize, _hudColor);
+
+        Raylib.DrawText(
+            _appleCount.ToString(),
+            _scoreTitleX,
+            _hudY + _fontSize + _gapSize,
+            _fontSize,
+            _hudColor
+        );
+    }
+
     #endregion
 }
