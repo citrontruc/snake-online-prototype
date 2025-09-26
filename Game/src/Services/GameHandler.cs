@@ -4,7 +4,7 @@ using Raylib_cs;
 
 public static class GameHandler
 {
-    #region Rzlated classes
+    #region Related classes
     private static InputHandler? _inputHandler;
     private static SceneHandler? _sceneHandler;
     private static EntityHandler? _entityHandler;
