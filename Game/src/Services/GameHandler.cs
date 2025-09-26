@@ -32,6 +32,7 @@ public static class GameHandler
     private static void InitiliazeServices()
     {
         Level1 level1 = new();
+        OnlineLevel onlineLevel = new();
         MainMenu mainMenu = new();
         GameOverMenu gameOverMenu = new();
         PlayerHandler playerHandler = new();

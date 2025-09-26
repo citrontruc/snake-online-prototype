@@ -6,6 +6,7 @@ public class JoinLobby : Menu
     #region Related objects
     private SceneHandler _sceneHandler => ServiceLocator.Get<SceneHandler>();
     private MainMenu _mainMenu => ServiceLocator.Get<MainMenu>();
+    private OnlineLevel _onlineLevel => ServiceLocator.Get<OnlineLevel>();
     #endregion
 
     private string _serverIP = "";
@@ -50,14 +51,20 @@ public class JoinLobby : Menu
 
     public override void Unload() { }
 
-    public void Update() { }
+    public override void Update(float deltaTime) { }
 
-    public void ConfirmInformation() { }
+    #region Scene Transitions
+    public void ConfirmInformation()
+    {
+        _onlineLevel.SetPlayerRole(OnlineLevel.PlayerRole.Client);
+        _sceneHandler.SetNewScene(_onlineLevel);
+    }
 
     public void ReturnToMainMenu()
     {
         _sceneHandler.SetNewScene(_mainMenu);
     }
+    #endregion
 
     public override void Draw()
     {

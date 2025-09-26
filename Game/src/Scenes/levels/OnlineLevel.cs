@@ -1,10 +1,17 @@
-/* A basic game of snake.*/
+/* An online level for snake.*/
 
 using Raylib_cs;
 
-public class Level1 : Level
+public class OnlineLevel : Level
 {
     private int _appleCount = 0;
+    private int _playerNumber = 0;
+    private PlayerRole _playerRole = PlayerRole.Client;
+    public enum PlayerRole
+    {
+        Server,
+        Client
+    } 
 
     #region Related objects
     private PlayerHandler _playerHandler => ServiceLocator.Get<PlayerHandler>();
@@ -47,9 +54,9 @@ public class Level1 : Level
     private int _scoreTitleX = _screenWidth / 2 - Raylib.MeasureText(_scoreTitle, _fontSize) / 2;
     #endregion
 
-    public Level1()
+    public OnlineLevel()
     {
-        ServiceLocator.Register<Level1>(this);
+        ServiceLocator.Register<OnlineLevel>(this);
     }
 
     #region Initialization
@@ -96,6 +103,16 @@ public class Level1 : Level
     private void GameOver()
     {
         _sceneHandler.SetNewScene(_gameOverMenu);
+    }
+
+    public void SetPlayerNumber(int playerNumber)
+    {
+        _playerNumber = playerNumber;
+    }
+
+    public void SetPlayerRole(PlayerRole playerRole)
+    {
+        _playerRole = playerRole;
     }
     #endregion
 
