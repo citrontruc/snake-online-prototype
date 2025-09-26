@@ -22,7 +22,8 @@ public abstract class Connection
         byte[] buffer = new byte[1024];
         string byteString = Encoding.Default.GetString(buffer);
         Message? messageValue = MessageFactory.FromJson(byteString);
-        if (!(messageValue is null)) {
+        if (!(messageValue is null))
+        {
             return messageValue;
         }
         throw new Exception("Decoding message failed");
