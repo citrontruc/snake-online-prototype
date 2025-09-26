@@ -8,10 +8,11 @@ public class Snake : Entity
     #region Related objects
     readonly Grid _snakeGrid;
     private EntityHandler _entityHandler => ServiceLocator.Get<EntityHandler>();
+    private PlayerHandler _playerHandler => ServiceLocator.Get<PlayerHandler>();
     #endregion
 
     #region Movement variables
-    private float _speed = 0.3f;
+    private float _speed = 00.5f;
     private Timer _movementTimer;
     #endregion
 
@@ -69,6 +70,7 @@ public class Snake : Entity
     #region Actions and reactions
     public override void Update(float deltaTime)
     {
+        ChangeDirection(_playerHandler.GetPlayerDirection());
         bool isMoving = _movementTimer.Update(deltaTime);
         if (isMoving)
         {
@@ -115,13 +117,6 @@ public class Snake : Entity
             if (apple.GetPosition() == head)
             {
                 Growth();
-            }
-        }
-        if (entity is DirectionBlock block)
-        {
-            if (block.GetPosition() == head)
-            {
-                ChangeDirection(block.GetDirection());
             }
         }
     }

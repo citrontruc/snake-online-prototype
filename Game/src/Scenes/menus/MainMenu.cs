@@ -6,6 +6,7 @@ using Raylib_cs;
 public class MainMenu : Menu
 {
     #region Related objects
+    private Level1 _level1 => ServiceLocator.Get<Level1>();
     private HostLobby _hostLobby => ServiceLocator.Get<HostLobby>();
     private JoinLobby _joinLobby => ServiceLocator.Get<JoinLobby>();
     private SceneHandler _sceneHandler => ServiceLocator.Get<SceneHandler>();
@@ -40,6 +41,7 @@ public class MainMenu : Menu
 
         SetSelectedOptionCharacteristics(1.2f, Color.Red);
 
+        AddOption("Play solo game", PlayGame);
         AddOption("Create Online Game", HostLobby);
         AddOption("Join Online Game", JoinLobby);
         AddOption("Quit Game", CloseWindow);
@@ -58,6 +60,11 @@ public class MainMenu : Menu
     private void CloseWindow()
     {
         Raylib.CloseWindow();
+    }
+
+    private void PlayGame()
+    {
+        _sceneHandler.SetNewScene(_level1);
     }
 
     private void HostLobby()
