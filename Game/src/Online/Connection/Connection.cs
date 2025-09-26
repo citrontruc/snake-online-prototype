@@ -9,17 +9,22 @@ public abstract class Connection
     public abstract void Connect(string host, int port);
     public abstract void Disconnect();
 
-    public void SendMessage(IMessage message)
+    public void SendMessage(Message message)
     {
-        byte[] data = message.Serialize();
+        byte[] data = new byte[1024];
+        data = Encoding.Default.GetBytes(MessageFactory.ToJson(message));
         stream.Write(data, 0, data.Length);
     }
 
-    public IMessage ReceiveMessage()
+    public Message ReceiveMessage()
     {
         // Simplified example
         byte[] buffer = new byte[1024];
-        int bytesRead = stream.Read(buffer, 0, buffer.Length);
-        return MessageFactory.FromBytes(buffer, bytesRead);
+        string byteString = Encoding.Default.GetString(buffer);
+        Message? messageValue = MessageFactory.FromJson(byteString);
+        if (!(messageValue is null)) {
+            return messageValue;
+        }
+        throw new Exception("Decoding message failed");
     }
 }
