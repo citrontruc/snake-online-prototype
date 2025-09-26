@@ -61,6 +61,7 @@ public class JoinLobby : Menu
         //_snakeClient
         ConfirmInformation();
     }
+
     public void ConfirmInformation()
     {
         _onlineLevel.SetPlayerRole(OnlineLevel.PlayerRole.Client);
