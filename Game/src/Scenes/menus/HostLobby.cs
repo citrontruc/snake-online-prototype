@@ -46,7 +46,6 @@ public class HostLobby : Menu
         AddOption("Start Game", ConfirmInformation);
         AddOption("Back to menu", ReturnToMainMenu);
         _selectedOption = 0;
-
     }
 
     public override void Load()
@@ -81,7 +80,7 @@ public class HostLobby : Menu
 
     #region Scene Transitions
     public void ConfirmInformation()
-    { 
+    {
         _onlineLevel.SetPlayerRole(OnlineLevel.PlayerRole.Server);
         _sceneHandler.SetNewScene(_onlineLevel);
     }

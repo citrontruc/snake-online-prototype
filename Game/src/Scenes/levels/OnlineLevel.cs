@@ -7,11 +7,12 @@ public class OnlineLevel : Level
     private int _appleCount = 0;
     private int _playerNumber = 0;
     private PlayerRole _playerRole = PlayerRole.Client;
+
     public enum PlayerRole
     {
         Server,
-        Client
-    } 
+        Client,
+    }
 
     #region Related objects
     private PlayerHandler _playerHandler => ServiceLocator.Get<PlayerHandler>();
