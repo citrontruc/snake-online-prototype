@@ -1,7 +1,6 @@
 using System.Net;
 using System.Net.Sockets;
 
-
 public class SnakeServer
 {
     private DotNetVariables _dotNetVariables => ServiceLocator.Get<DotNetVariables>();

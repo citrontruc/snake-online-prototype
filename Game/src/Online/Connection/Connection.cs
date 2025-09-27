@@ -12,10 +12,7 @@ public class Connection
         _streams.Add(client.GetStream());
     }
 
-    public void Disconnect()
-    {
-        
-    }
+    public void Disconnect() { }
 
     public void SendMessage(Message message)
     {
