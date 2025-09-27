@@ -27,6 +27,7 @@ public class Snake : Entity
 
     #region State properties
     private bool _growing = false;
+    private List<CellCoordinates> _commandList = new();
     #endregion
 
     #region Draw properties
@@ -69,9 +70,18 @@ public class Snake : Entity
     #endregion
 
     #region Actions and reactions
+    public void GiveDirection(CellCoordinates direction)
+    {
+        _commandList.Add(direction);
+    }
+
     public override void Update(float deltaTime)
     {
-        ChangeDirection(_playerHandler.GetPlayerDirection());
+        foreach (CellCoordinates direction in _commandList)
+        {
+            ChangeDirection(direction);
+        }
+        _commandList = new();
         bool isMoving = _movementTimer.Update(deltaTime);
         if (isMoving)
         {

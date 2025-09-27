@@ -19,6 +19,7 @@ public class OnlineLevel : Level
     private EntityHandler _entityHandler => ServiceLocator.Get<EntityHandler>();
     private SceneHandler _sceneHandler => ServiceLocator.Get<SceneHandler>();
     private GameOverMenu _gameOverMenu => ServiceLocator.Get<GameOverMenu>();
+    private Connection? _gameConnection;
     #endregion
 
     #region Grid properties
@@ -34,6 +35,7 @@ public class OnlineLevel : Level
     private GameState _currentState = GameState.play;
     private List<int> _appleIDList = new();
     private List<int> _snakeIDList = new();
+    private int _currentPlayerID = 0;
     #endregion
 
     #region Draw properties
@@ -81,6 +83,7 @@ public class OnlineLevel : Level
         _snakeIDList = new();
         CellCoordinates snakePosition = new(5, 5);
         Snake snake = new(snakePosition, _level1Grid, 3);
+        _currentPlayerID = snake.GetID();
         _snakeIDList.Add(snake.GetID());
         _level1Grid.Update();
     }
@@ -111,6 +114,11 @@ public class OnlineLevel : Level
         _playerNumber = playerNumber;
     }
 
+    public void SetConnection(Connection connection)
+    {
+        _gameConnection = connection;
+    }
+
     public void SetPlayerRole(PlayerRole playerRole)
     {
         _playerRole = playerRole;
@@ -122,6 +130,9 @@ public class OnlineLevel : Level
     {
         _playerHandler.Update(deltaTime);
         CheckSnake(deltaTime);
+        // Send snake position and direction.
+        // Check other player snake movement.
+        // Update other snakes based on input.
         CheckApple();
         _level1Grid?.Update();
         if (_currentState == GameState.gameOver)
@@ -154,7 +165,12 @@ public class OnlineLevel : Level
             {
                 _currentState = GameState.gameOver;
             }
-            _entityHandler.GetEntity(snakeID).Update(deltaTime);
+            if (snakeID == _currentPlayerID)
+            {
+                Snake playerSnake = (Snake)_entityHandler.GetEntity(snakeID);
+                playerSnake.GiveDirection(ServiceLocator.Get<PlayerHandler>().GetPlayerDirection());
+                playerSnake.Update(deltaTime);
+            }
         }
     }
     #endregion

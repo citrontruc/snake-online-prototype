@@ -1,24 +1,34 @@
 using System.Net.Sockets;
 using System.Text;
 
-public abstract class Connection
+public class Connection
 {
-    protected TcpClient tcpClient;
-    protected NetworkStream stream;
+    private List<TcpClient> _clients = new();
+    private List<NetworkStream> _streams = new();
 
-    public abstract void Connect(string host, int port);
-    public abstract void Disconnect();
+    public void AddConnection(TcpClient client)
+    {
+        _clients.Add(client);
+        _streams.Add(client.GetStream());
+    }
+
+    public void Disconnect()
+    {
+        
+    }
 
     public void SendMessage(Message message)
     {
         byte[] data = new byte[1024];
         data = Encoding.Default.GetBytes(MessageFactory.ToJson(message));
-        stream.Write(data, 0, data.Length);
+        foreach (NetworkStream _playerStream in _streams)
+        {
+            _playerStream.Write(data, 0, data.Length);
+        }
     }
 
     public Message ReceiveMessage()
     {
-        // Simplified example
         byte[] buffer = new byte[1024];
         string byteString = Encoding.Default.GetString(buffer);
         Message? messageValue = MessageFactory.FromJson(byteString);

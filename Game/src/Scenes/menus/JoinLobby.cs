@@ -8,6 +8,7 @@ public class JoinLobby : Menu
     private MainMenu _mainMenu => ServiceLocator.Get<MainMenu>();
     private SnakeClient _snakeClient => ServiceLocator.Get<SnakeClient>();
     private OnlineLevel _onlineLevel => ServiceLocator.Get<OnlineLevel>();
+    private Connection _gameConnection = new();
     #endregion
 
     private string _serverIP = "";
@@ -48,11 +49,17 @@ public class JoinLobby : Menu
         ServiceLocator.Register<JoinLobby>(this);
     }
 
-    public override void Load() { }
+    public override void Load()
+    {
+        _gameConnection = new();
+    }
 
     public override void Unload() { }
 
-    public override void Update(float deltaTime) { }
+    public override void Update(float deltaTime)
+    {
+        base.Update(deltaTime);
+    }
 
     #region Scene Transitions
     public void SearchForGame()

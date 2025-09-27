@@ -3,7 +3,7 @@ It contains the information for the board of the game as well as the id the play
 
 public class InitializeGame : Message
 {
-    public InitializeGame(UserInput userInput, int playerId)
+    public InitializeGame(int playerId)
     {
         _thisMessageType = MessageType.Update;
         PlayerId = playerId;

@@ -7,6 +7,7 @@ public class HostLobby : Menu
     private SceneHandler _sceneHandler => ServiceLocator.Get<SceneHandler>();
     private MainMenu _mainMenu => ServiceLocator.Get<MainMenu>();
     private OnlineLevel _onlineLevel => ServiceLocator.Get<OnlineLevel>();
+    private Connection _gameConnection;
     #endregion
 
     private SnakeServer _snakeServer => ServiceLocator.Get<SnakeServer>();
@@ -50,7 +51,8 @@ public class HostLobby : Menu
 
     public override void Load()
     {
-        _serverPassKey = CreatePassKey();
+        _gameConnection = new();
+        //_serverPassKey = CreatePassKey();
         //LaunchServer();
         //_snakeServer.CreateClientThreads();
     }
@@ -78,6 +80,7 @@ public class HostLobby : Menu
 
     public override void Update(float deltaTime)
     {
+        base.Update(deltaTime);
         if (_hasPlayers)
         {
             AddOption("Start Game", ConfirmInformation);

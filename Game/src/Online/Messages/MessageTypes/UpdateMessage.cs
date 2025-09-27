@@ -3,12 +3,12 @@ Every client sends one of them to the server, the server sends multiple of them 
 
 public class UpdateMessage : Message
 {
-    public UserInput userInput;
+    public CellCoordinates SnakeDirection;
 
-    public UpdateMessage(UserInput userInput, int playerId)
+    public UpdateMessage(CellCoordinates snakeDirection, int playerId)
     {
         _thisMessageType = MessageType.Update;
-        this.userInput = userInput;
+        this.SnakeDirection = snakeDirection;
         PlayerId = playerId;
     }
 }

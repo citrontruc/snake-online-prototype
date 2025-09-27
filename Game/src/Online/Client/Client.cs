@@ -3,40 +3,30 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 
-class SnakeClient
+public class SnakeClient
 {
     private static DotNetVariables _dotNetVariables => ServiceLocator.Get<DotNetVariables>();
+    private NetworkStream? _stream;
 
     public SnakeClient()
     {
         ServiceLocator.Register<SnakeClient>(this);
     }
 
-    public static void JoinServer()
+    public void Reset()
     {
-        TcpClient client = new TcpClient(_dotNetVariables.ServerIP, _dotNetVariables.ServerPort);
-        NetworkStream stream = client.GetStream();
+        _stream = null;
+    }
 
-        // Background thread to receive commands
-        new Thread(() =>
-        {
-            byte[] buffer = new byte[256];
-            while (true)
-            {
-                int bytesRead = stream.Read(buffer, 0, buffer.Length);
-                if (bytesRead == 0)
-                    break;
-                string msg = Encoding.UTF8.GetString(buffer, 0, bytesRead);
-                Console.WriteLine("Server says: " + msg);
-            }
-        }).Start();
+    public static void JoinServer(string serverIP)
+    {
+        TcpClient client = new TcpClient(serverIP, _dotNetVariables.ServerPort);
+        NetworkStream _stream = client.GetStream();
+    }
 
-        // Send commands manually (for testing)
-        while (true)
-        {
-            string cmd = Console.ReadLine() ?? "";
-            byte[] data = Encoding.UTF8.GetBytes(cmd);
-            stream.Write(data, 0, data.Length);
-        }
+    public void SendStringMessage(string message)
+    {
+        byte[] data = Encoding.UTF8.GetBytes(message);
+        _stream?.Write(data, 0, data.Length);
     }
 }
