@@ -39,6 +39,7 @@ public static class GameHandler
         DotNetVariables dotnetVariables = new();
         HostLobby hostLobby = new();
         JoinLobby joinLobby = new();
+        MessageFactory messageFactory = new();
         SnakeServer snakeServer = new();
         SnakeClient snakeClient = new();
         _inputHandler = new();

@@ -93,6 +93,15 @@ public class JoinLobby : Menu
             }
         }
 
+        if (_state == ConnectionState.WaitingForHost)
+        {
+            bool newMessage = _gameConnection.CheckIfNewMessage();
+            if (newMessage)
+            {
+                _state = ConnectionState.HostFound;
+            }
+        }
+
         if (_state == ConnectionState.HostFound)
         {
             ConfirmInformation();

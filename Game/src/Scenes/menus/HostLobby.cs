@@ -88,6 +88,8 @@ public class HostLobby : Menu
     {
         _onlineLevel.SetPlayerRole(OnlineLevel.PlayerRole.Server);
         _onlineLevel.SetConnection(_gameConnection);
+        InitializeGame message = new(1);
+        _gameConnection.SendMessage(message);
         _sceneHandler.SetNewScene(_onlineLevel);
     }
 

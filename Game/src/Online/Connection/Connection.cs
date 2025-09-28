@@ -5,6 +5,7 @@ public class Connection
 {
     private List<TcpClient> _clients = new();
     private List<NetworkStream> _streams = new();
+    private MessageFactory _messageFactory => ServiceLocator.Get<MessageFactory>();
 
     public bool CheckIfHasPlayer()
     {
@@ -34,22 +35,43 @@ public class Connection
     public void SendMessage(Message message)
     {
         byte[] data = new byte[1024];
-        data = Encoding.Default.GetBytes(MessageFactory.ToJson(message));
+        data = Encoding.UTF8.GetBytes(_messageFactory.ToJson(message));
         foreach (NetworkStream _playerStream in _streams)
         {
             _playerStream.Write(data, 0, data.Length);
         }
     }
 
-    public Message ReceiveMessage()
+    public bool CheckIfNewMessage()
     {
-        byte[] buffer = new byte[1024];
-        string byteString = Encoding.Default.GetString(buffer);
-        Message? messageValue = MessageFactory.FromJson(byteString);
-        if (!(messageValue is null))
+        foreach (NetworkStream _playerStream in _streams)
         {
-            return messageValue;
+            if (_playerStream.DataAvailable)
+                return true;
         }
-        throw new Exception("Decoding message failed");
+        return false;
+    }
+
+    public async Task<List<Message>> ReceiveMessage()
+    {
+        List<Message> messageList = new();
+        foreach (NetworkStream _playerStream in _streams)
+        {
+            if (!_playerStream.DataAvailable)
+                continue; // skip streams with no data
+
+            byte[] buffer = new byte[1024];
+            int bytesRead = await _playerStream.ReadAsync(buffer, 0, buffer.Length);
+            if (bytesRead > 0)
+            {
+                string byteString = Encoding.UTF8.GetString(buffer);
+                Message? messageValue = _messageFactory.FromJson(byteString);
+                if (!(messageValue is null))
+                {
+                    messageList.Add(messageValue);
+                }
+            }
+        }
+        return messageList;
     }
 }
