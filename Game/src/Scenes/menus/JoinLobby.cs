@@ -12,12 +12,20 @@ public class JoinLobby : Menu
     private Connection _gameConnection = new();
     #endregion
 
+    public enum ConnectionState
+    {
+        NoHost,
+        WaitingForHost,
+        HostFound
+    }
+
+    private ConnectionState _state = ConnectionState.NoHost;
     private string _serverIP = "";
     private int MAXINPUTCHAR = 15;
     private string _serverPassword = "";
     private int _letterCount => _serverIP.Count();
-    private Rectangle _textBox = new(_screenWidth / 2.0f - 100, 180, _screenHeight / 2, 50);
-
+    private Rectangle _textBox = new((_screenWidth - Raylib.MeasureText("CONNECTING...", 50)) / 2.0f , _screenHeight / 2, Raylib.MeasureText("CONNECTING...", 50), 50);
+    
     public JoinLobby()
         : base("Looking for lobbies...")
     {
@@ -53,6 +61,7 @@ public class JoinLobby : Menu
 
     public override void Load()
     {
+        _state = ConnectionState.NoHost;
         _gameConnection = new();
         _snakeClient.SetConnection(_gameConnection);
     }
@@ -78,6 +87,11 @@ public class JoinLobby : Menu
                 _serverIP = _serverIP.Remove(_letterCount - 1, 1);
             }
         }
+
+        if (_state == ConnectionState.HostFound)
+        {
+            ConfirmInformation();
+        }
     }
 
     #region Scene Transitions
@@ -87,15 +101,12 @@ public class JoinLobby : Menu
         try
         {
             _snakeClient.JoinServer(_serverIP);
+            _state = ConnectionState.WaitingForHost;
         }
         catch (SocketException ex)
         {
             Console.WriteLine($"Connection failed: {ex.Message}.");
-        }
-
-        if (_gameConnection.CheckIfHasPlayer())
-        {
-            ConfirmInformation();
+            _state = ConnectionState.NoHost;
         }
     }
 
@@ -116,12 +127,25 @@ public class JoinLobby : Menu
     {
         base.Draw();
         Raylib.DrawRectangleRec(_textBox, Color.Red);
-        Raylib.DrawText(
-            _serverIP,
-            (int)_textBox.X,
-            (int)_textBox.Y,
-            (int)_textBox.Height,
-            Color.White
-        );
+        if (_state == ConnectionState.NoHost)
+        {
+            Raylib.DrawText(
+                _serverIP,
+                (int)_textBox.X,
+                (int)_textBox.Y,
+                (int)_textBox.Height,
+                Color.White
+            );
+        }
+        if (_state == ConnectionState.WaitingForHost)
+        {
+            Raylib.DrawText(
+                "CONNECTING...",
+                (int)_textBox.X,
+                (int)_textBox.Y,
+                (int)_textBox.Height,
+                Color.White
+            );
+        }        
     }
 }
