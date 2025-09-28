@@ -7,15 +7,13 @@ public class HostLobby : Menu
     private SceneHandler _sceneHandler => ServiceLocator.Get<SceneHandler>();
     private MainMenu _mainMenu => ServiceLocator.Get<MainMenu>();
     private OnlineLevel _onlineLevel => ServiceLocator.Get<OnlineLevel>();
-    private Connection _gameConnection;
+    private Connection _gameConnection = new();
     #endregion
 
     private SnakeServer _snakeServer => ServiceLocator.Get<SnakeServer>();
     private int _numPlayers = 0;
     private bool _hasPlayers = false;
     private string _serverPassKey = "";
-    int playerNumber = 0;
-    private Rectangle _textBox = new(_screenWidth / 2.0f - 100, 180, _screenHeight / 2, 50);
 
     public HostLobby()
         : base("Waiting for other players...")
@@ -52,9 +50,9 @@ public class HostLobby : Menu
     public override void Load()
     {
         _gameConnection = new();
+        _snakeServer.SetConnection(_gameConnection);
         //_serverPassKey = CreatePassKey();
-        //LaunchServer();
-        //_snakeServer.CreateClientThreads();
+        LaunchServer();
     }
 
     public override void Unload() { }
@@ -62,10 +60,7 @@ public class HostLobby : Menu
     public void LaunchServer()
     {
         _snakeServer.LaunchServer();
-        for (int i = 1; i < playerNumber; i++)
-        {
-            _snakeServer.ConnectToClient();
-        }
+        _snakeServer.ConnectToClient();
     }
 
     private string CreatePassKey()
@@ -81,16 +76,18 @@ public class HostLobby : Menu
     public override void Update(float deltaTime)
     {
         base.Update(deltaTime);
-        if (_hasPlayers)
+        if (!_hasPlayers && _gameConnection.CheckIfHasPlayer())
         {
             AddOption("Start Game", ConfirmInformation);
         }
+        _hasPlayers = _gameConnection.CheckIfHasPlayer();
     }
 
     #region Scene Transitions
     public void ConfirmInformation()
     {
         _onlineLevel.SetPlayerRole(OnlineLevel.PlayerRole.Server);
+        _onlineLevel.SetConnection(_gameConnection);
         _sceneHandler.SetNewScene(_onlineLevel);
     }
 
@@ -100,9 +97,11 @@ public class HostLobby : Menu
     }
     #endregion
 
+    /// <summary>
+    /// TODO : draw the passkey of the game on the screen.
+    /// </summary>
     public override void Draw()
     {
         base.Draw();
-        Raylib.DrawRectangleRec(_textBox, Color.Red);
     }
 }

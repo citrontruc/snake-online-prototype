@@ -40,6 +40,7 @@ public static class GameHandler
         HostLobby hostLobby = new();
         JoinLobby joinLobby = new();
         SnakeServer snakeServer = new();
+        SnakeClient snakeClient = new();
         _inputHandler = new();
         _sceneHandler = new(mainMenu);
         _entityHandler = new();

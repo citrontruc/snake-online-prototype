@@ -12,7 +12,7 @@ public class Snake : Entity
     #endregion
 
     #region Movement variables
-    private float _speed = 00.5f;
+    private float _speed = 0.5f;
     private Timer _movementTimer;
     #endregion
 

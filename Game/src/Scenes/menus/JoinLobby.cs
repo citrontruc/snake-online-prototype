@@ -1,3 +1,4 @@
+using System.Net.Sockets;
 using System.Numerics;
 using Raylib_cs;
 
@@ -12,6 +13,7 @@ public class JoinLobby : Menu
     #endregion
 
     private string _serverIP = "";
+    private int MAXINPUTCHAR = 15;
     private string _serverPassword = "";
     private int _letterCount => _serverIP.Count();
     private Rectangle _textBox = new(_screenWidth / 2.0f - 100, 180, _screenHeight / 2, 50);
@@ -52,6 +54,7 @@ public class JoinLobby : Menu
     public override void Load()
     {
         _gameConnection = new();
+        _snakeClient.SetConnection(_gameConnection);
     }
 
     public override void Unload() { }
@@ -59,19 +62,47 @@ public class JoinLobby : Menu
     public override void Update(float deltaTime)
     {
         base.Update(deltaTime);
+        int key = 0;
+        while ((key = Raylib.GetCharPressed()) > 0)
+        {
+            Console.WriteLine(key);
+            if ((key >= 32) && (key <= 125) && (_letterCount <= MAXINPUTCHAR))
+            {
+                _serverIP += (char)key;
+            }
+        }
+        if (Raylib.IsKeyPressed(KeyboardKey.Backspace))
+        {
+            if (_letterCount > 0)
+            {
+                _serverIP = _serverIP.Remove(_letterCount - 1, 1);
+            }
+        }
     }
 
     #region Scene Transitions
     public void SearchForGame()
     {
-        // Tenter de se connecter. Si succès, on se lance.
-        //_snakeClient
-        ConfirmInformation();
+        Console.WriteLine(_serverIP);
+        try
+        {
+            _snakeClient.JoinServer(_serverIP);
+        }
+        catch (SocketException ex)
+        {
+            Console.WriteLine($"Connection failed: {ex.Message}.");
+        }
+        
+        if (_gameConnection.CheckIfHasPlayer())
+        {
+            ConfirmInformation();
+        }
     }
 
     public void ConfirmInformation()
     {
         _onlineLevel.SetPlayerRole(OnlineLevel.PlayerRole.Client);
+        _onlineLevel.SetConnection(_gameConnection);
         _sceneHandler.SetNewScene(_onlineLevel);
     }
 
@@ -85,5 +116,12 @@ public class JoinLobby : Menu
     {
         base.Draw();
         Raylib.DrawRectangleRec(_textBox, Color.Red);
+        Raylib.DrawText(
+            _serverIP,
+            (int)_textBox.X,
+            (int)_textBox.Y,
+            (int)_textBox.Height,
+            Color.White
+        );
     }
 }

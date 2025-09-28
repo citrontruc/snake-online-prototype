@@ -6,13 +6,30 @@ public class Connection
     private List<TcpClient> _clients = new();
     private List<NetworkStream> _streams = new();
 
+    public bool CheckIfHasPlayer()
+    {
+        return _clients.Count() > 0;
+    }
+
     public void AddConnection(TcpClient client)
     {
         _clients.Add(client);
         _streams.Add(client.GetStream());
     }
 
-    public void Disconnect() { }
+    public void Disconnect()
+    {
+        foreach (NetworkStream stream in _streams)
+        {
+            stream.Close();
+        }
+        foreach (TcpClient client in _clients)
+        {
+            client.Close();
+        }
+        _clients = new();
+        _streams = new();
+    }
 
     public void SendMessage(Message message)
     {

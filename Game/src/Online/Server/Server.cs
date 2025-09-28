@@ -13,17 +13,25 @@ public class SnakeServer
         _server = new TcpListener(IPAddress.Any, _dotNetVariables.ServerPort);
     }
 
+    public void SetConnection(Connection connection)
+    {
+        _serverConnection = connection;
+    }
+
     public void LaunchServer()
     {
         _server.Start();
         Console.WriteLine("Server started. Waiting for client...");
     }
 
-    public void ConnectToClient()
+    public async Task ConnectToClient()
     {
-        Console.WriteLine("Waiting for clients to connect...");
-        TcpClient client = _server.AcceptTcpClient();
-        Console.WriteLine("Client connected!");
-        _serverConnection.AddConnection(client);
+        while (true)
+        {
+            Console.WriteLine("Waiting for clients to connect...");
+            TcpClient client = await _server.AcceptTcpClientAsync();
+            Console.WriteLine("Client connected!");
+            _serverConnection.AddConnection(client);
+        }
     }
 }

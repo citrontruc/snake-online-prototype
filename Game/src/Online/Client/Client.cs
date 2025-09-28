@@ -7,10 +7,16 @@ public class SnakeClient
 {
     private static DotNetVariables _dotNetVariables => ServiceLocator.Get<DotNetVariables>();
     private NetworkStream? _stream;
+    private Connection _serverConnection = new();
 
     public SnakeClient()
     {
         ServiceLocator.Register<SnakeClient>(this);
+    }
+
+    public void SetConnection(Connection connection)
+    {
+        _serverConnection = connection;
     }
 
     public void Reset()
@@ -18,15 +24,9 @@ public class SnakeClient
         _stream = null;
     }
 
-    public static void JoinServer(string serverIP)
+    public void JoinServer(string serverIP)
     {
         TcpClient client = new TcpClient(serverIP, _dotNetVariables.ServerPort);
-        NetworkStream _stream = client.GetStream();
-    }
-
-    public void SendStringMessage(string message)
-    {
-        byte[] data = Encoding.UTF8.GetBytes(message);
-        _stream?.Write(data, 0, data.Length);
+        _serverConnection.AddConnection(client);
     }
 }

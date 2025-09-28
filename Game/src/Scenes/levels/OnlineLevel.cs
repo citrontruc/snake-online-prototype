@@ -100,6 +100,7 @@ public class OnlineLevel : Level
     #region Scene transitions
     public override void Unload()
     {
+        _gameConnection?.Disconnect();
         _entityHandler.Reset();
         _playerHandler.Reset();
     }
