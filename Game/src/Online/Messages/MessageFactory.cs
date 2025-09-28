@@ -22,7 +22,7 @@ public class MessageFactory
         {
             return null; // or throw
         }
-        
+
         JsonDocument doc = JsonDocument.Parse(json);
         // Check message type to find the right deserialize method
         string? type = doc.RootElement.GetProperty("MessageType").GetString();
@@ -37,7 +37,9 @@ public class MessageFactory
             return messageType switch
             {
                 Message.MessageType.Update => JsonSerializer.Deserialize<UpdateMessage>(json),
-                Message.MessageType.InitializeGame => JsonSerializer.Deserialize<InitializeGame>(json),
+                Message.MessageType.InitializeGame => JsonSerializer.Deserialize<InitializeGame>(
+                    json
+                ),
                 _ => throw new ParseException($"Unknown message type: {type}"),
             };
         }
