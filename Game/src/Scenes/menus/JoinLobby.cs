@@ -16,7 +16,7 @@ public class JoinLobby : Menu
     {
         NoHost,
         WaitingForHost,
-        HostFound
+        HostFound,
     }
 
     private ConnectionState _state = ConnectionState.NoHost;
@@ -24,8 +24,13 @@ public class JoinLobby : Menu
     private int MAXINPUTCHAR = 15;
     private string _serverPassword = "";
     private int _letterCount => _serverIP.Count();
-    private Rectangle _textBox = new((_screenWidth - Raylib.MeasureText("CONNECTING...", 50)) / 2.0f , _screenHeight / 2, Raylib.MeasureText("CONNECTING...", 50), 50);
-    
+    private Rectangle _textBox = new(
+        (_screenWidth - Raylib.MeasureText("CONNECTING...", 50)) / 2.0f,
+        _screenHeight / 2,
+        Raylib.MeasureText("CONNECTING...", 50),
+        50
+    );
+
     public JoinLobby()
         : base("Looking for lobbies...")
     {
@@ -146,6 +151,6 @@ public class JoinLobby : Menu
                 (int)_textBox.Height,
                 Color.White
             );
-        }        
+        }
     }
 }
