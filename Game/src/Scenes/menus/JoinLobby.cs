@@ -92,7 +92,7 @@ public class JoinLobby : Menu
         {
             Console.WriteLine($"Connection failed: {ex.Message}.");
         }
-        
+
         if (_gameConnection.CheckIfHasPlayer())
         {
             ConfirmInformation();
