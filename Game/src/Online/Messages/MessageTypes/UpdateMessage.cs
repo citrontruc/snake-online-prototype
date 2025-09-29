@@ -8,7 +8,7 @@ public class UpdateMessage : Message
     public UpdateMessage(CellCoordinates snakeDirection, int playerId)
     {
         _thisMessageType = MessageType.Update;
-        this.SnakeDirection = snakeDirection;
+        SnakeDirection = snakeDirection;
         PlayerId = playerId;
     }
 }

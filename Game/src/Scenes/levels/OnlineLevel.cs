@@ -6,6 +6,8 @@ public class OnlineLevel : Level
 {
     private int _appleCount = 0;
     private int _playerNumber = 2;
+    private Snake? _thisPlayerSnake;
+    private Snake? _otherPlayerSnake;
     private PlayerRole _playerRole = PlayerRole.Client;
 
     public enum PlayerRole
@@ -82,9 +84,28 @@ public class OnlineLevel : Level
     {
         _snakeIDList = new();
         CellCoordinates snakePosition = new(5, 5);
-        Snake snake = new(snakePosition, _level1Grid, 3);
-        _currentPlayerID = snake.GetID();
-        _snakeIDList.Add(snake.GetID());
+        CellCoordinates secondSnakePosition = new(5, 10);
+        switch (_playerRole)
+        {
+            case PlayerRole.Client:
+                {
+                    _thisPlayerSnake = new(secondSnakePosition, _level1Grid, 3, Color.Green);
+                    _otherPlayerSnake = new(snakePosition, _level1Grid, 3, Color.Red);
+                    break;
+                }
+            case PlayerRole.Server:
+                {
+                    _thisPlayerSnake = new(snakePosition, _level1Grid, 3, Color.Green);
+                    _otherPlayerSnake = new(secondSnakePosition, _level1Grid, 3, Color.Red);
+                    break;
+                }
+            default:
+                break;
+        }
+        
+        _currentPlayerID = _thisPlayerSnake.GetID();
+        _snakeIDList.Add(_currentPlayerID);
+        _snakeIDList.Add(_otherPlayerSnake.GetID());
         _level1Grid.Update();
     }
 
@@ -166,12 +187,31 @@ public class OnlineLevel : Level
             {
                 _currentState = GameState.gameOver;
             }
+            Snake playerSnake = (Snake)_entityHandler.GetEntity(snakeID);
             if (snakeID == _currentPlayerID)
             {
-                Snake playerSnake = (Snake)_entityHandler.GetEntity(snakeID);
                 playerSnake.GiveDirection(ServiceLocator.Get<PlayerHandler>().GetPlayerDirection());
+                UpdateMessage updateMessage = new(ServiceLocator.Get<PlayerHandler>().GetPlayerDirection(), 1);
+                _gameConnection?.SendMessage(updateMessage);
                 playerSnake.Update(deltaTime);
             }
+            else
+            {
+                bool newMessage = _gameConnection.CheckIfNewMessage();
+                if (newMessage)
+                {
+                    // We block our chain until we process all the messages in our chain.
+                    List<Message> messageList = _gameConnection.ReceiveMessage().GetAwaiter().GetResult();
+                    foreach (Message message in messageList)
+                    {
+                        if (message.GetMessageType() == Message.MessageType.Update)
+                        {
+                            playerSnake.GiveDirection(((UpdateMessage)message).SnakeDirection);
+                        }
+                    }
+                }
+            }
+            playerSnake.Update(deltaTime);
         }
     }
     #endregion

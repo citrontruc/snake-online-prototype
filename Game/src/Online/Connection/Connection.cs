@@ -64,7 +64,8 @@ public class Connection
             int bytesRead = await _playerStream.ReadAsync(buffer, 0, buffer.Length);
             if (bytesRead > 0)
             {
-                string byteString = Encoding.UTF8.GetString(buffer);
+                string byteString = Encoding.UTF8.GetString(buffer, 0, bytesRead);
+                Console.WriteLine(byteString);
                 Message? messageValue = _messageFactory.FromJson(byteString);
                 if (!(messageValue is null))
                 {

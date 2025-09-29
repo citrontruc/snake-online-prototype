@@ -12,4 +12,8 @@ public abstract class Message
 
     protected MessageType _thisMessageType;
     public int PlayerId;
+    public MessageType GetMessageType()
+    {
+        return _thisMessageType;
+    }
 }
