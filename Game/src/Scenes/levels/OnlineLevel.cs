@@ -88,21 +88,21 @@ public class OnlineLevel : Level
         switch (_playerRole)
         {
             case PlayerRole.Client:
-                {
-                    _thisPlayerSnake = new(secondSnakePosition, _level1Grid, 3, Color.Green);
-                    _otherPlayerSnake = new(snakePosition, _level1Grid, 3, Color.Red);
-                    break;
-                }
+            {
+                _thisPlayerSnake = new(secondSnakePosition, _level1Grid, 3, Color.Green);
+                _otherPlayerSnake = new(snakePosition, _level1Grid, 3, Color.Red);
+                break;
+            }
             case PlayerRole.Server:
-                {
-                    _thisPlayerSnake = new(snakePosition, _level1Grid, 3, Color.Green);
-                    _otherPlayerSnake = new(secondSnakePosition, _level1Grid, 3, Color.Red);
-                    break;
-                }
+            {
+                _thisPlayerSnake = new(snakePosition, _level1Grid, 3, Color.Green);
+                _otherPlayerSnake = new(secondSnakePosition, _level1Grid, 3, Color.Red);
+                break;
+            }
             default:
                 break;
         }
-        
+
         _currentPlayerID = _thisPlayerSnake.GetID();
         _snakeIDList.Add(_currentPlayerID);
         _snakeIDList.Add(_otherPlayerSnake.GetID());
@@ -191,7 +191,10 @@ public class OnlineLevel : Level
             if (snakeID == _currentPlayerID)
             {
                 playerSnake.GiveDirection(ServiceLocator.Get<PlayerHandler>().GetPlayerDirection());
-                UpdateMessage updateMessage = new(ServiceLocator.Get<PlayerHandler>().GetPlayerDirection(), 1);
+                UpdateMessage updateMessage = new(
+                    ServiceLocator.Get<PlayerHandler>().GetPlayerDirection(),
+                    1
+                );
                 _gameConnection?.SendMessage(updateMessage);
                 playerSnake.Update(deltaTime);
             }
@@ -201,7 +204,10 @@ public class OnlineLevel : Level
                 if (newMessage)
                 {
                     // We block our chain until we process all the messages in our chain.
-                    List<Message> messageList = _gameConnection.ReceiveMessage().GetAwaiter().GetResult();
+                    List<Message> messageList = _gameConnection
+                        .ReceiveMessage()
+                        .GetAwaiter()
+                        .GetResult();
                     foreach (Message message in messageList)
                     {
                         if (message.GetMessageType() == Message.MessageType.Update)
