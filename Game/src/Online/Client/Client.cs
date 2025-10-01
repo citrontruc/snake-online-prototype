@@ -28,7 +28,6 @@ public class SnakeClient
         _ws = new ClientWebSocket();
         var uri = new Uri($"ws://{serverIP}:{_dotNetVariables.ServerPort}/");
         await _ws.ConnectAsync(uri, CancellationToken.None);
-        Console.WriteLine("Connected to server via WebSocket!");
         _serverConnection.AddConnection(_ws);
 
         _ = ReceiveLoop();

@@ -201,7 +201,6 @@ public class OnlineLevel : Level
                 while (_gameConnection.CheckIfHasMessage())
                 {
                     Message? message = _gameConnection.ReadMessage();
-                    Console.WriteLine(message);
                     if (message?.GetMessageType() == Message.MessageType.Update)
                     {
                         try
@@ -210,7 +209,7 @@ public class OnlineLevel : Level
                         }
                         catch
                         {
-                            Console.WriteLine("something happened");
+                            Console.WriteLine($"Wrong message received {message}.");
                         }
                     }
                 }

@@ -72,9 +72,7 @@ public class Connection
 
     public void LoadMessage(string byteString)
     {
-        Console.WriteLine(byteString);
         Message? messageValue = _messageFactory.FromJson(byteString);
-        Console.WriteLine($"messageValue: {messageValue}");
         if (messageValue is not null)
         {
             _messageQueue.Enqueue(messageValue);

@@ -24,7 +24,6 @@ public class SnakeServer
     public async Task LaunchServer()
     {
         _listener.Start();
-        Console.WriteLine("Server started. Waiting for client...");
 
         while (true)
         {
@@ -33,7 +32,6 @@ public class SnakeServer
             if (context.Request.IsWebSocketRequest)
             {
                 HttpListenerWebSocketContext wsContext = await context.AcceptWebSocketAsync(null);
-                Console.WriteLine("Client connected via WebSocket!");
                 _serverConnection.AddConnection(wsContext.WebSocket);
 
                 _ = HandleClient(wsContext.WebSocket);
