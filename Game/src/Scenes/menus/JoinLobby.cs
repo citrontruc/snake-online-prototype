@@ -79,7 +79,6 @@ public class JoinLobby : Menu
         int key = 0;
         while ((key = Raylib.GetCharPressed()) > 0)
         {
-            Console.WriteLine(key);
             if ((key >= 32) && (key <= 125) && (_letterCount <= MAXINPUTCHAR))
             {
                 _serverIP += (char)key;
@@ -95,7 +94,7 @@ public class JoinLobby : Menu
 
         if (_state == ConnectionState.WaitingForHost)
         {
-            bool newMessage = _gameConnection.CheckIfNewMessage();
+            bool newMessage = _gameConnection.CheckIfHasMessage();
             if (newMessage)
             {
                 _state = ConnectionState.HostFound;

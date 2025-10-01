@@ -1,12 +1,10 @@
-using System;
-using System.Net.Sockets;
+using System.Net.WebSockets;
 using System.Text;
-using System.Threading;
 
 public class SnakeClient
 {
     private static DotNetVariables _dotNetVariables => ServiceLocator.Get<DotNetVariables>();
-    private NetworkStream? _stream;
+    private ClientWebSocket? _ws;
     private Connection _serverConnection = new();
 
     public SnakeClient()
@@ -21,12 +19,36 @@ public class SnakeClient
 
     public void Reset()
     {
-        _stream = null;
+        _ws?.Dispose();
+        _ws = null;
     }
 
-    public void JoinServer(string serverIP)
+    public async Task JoinServer(string serverIP)
     {
-        TcpClient client = new TcpClient(serverIP, _dotNetVariables.ServerPort);
-        _serverConnection.AddConnection(client);
+        _ws = new ClientWebSocket();
+        var uri = new Uri($"ws://{serverIP}:{_dotNetVariables.ServerPort}/");
+        await _ws.ConnectAsync(uri, CancellationToken.None);
+        Console.WriteLine("Connected to server via WebSocket!");
+        _serverConnection.AddConnection(_ws);
+
+        _ = ReceiveLoop();
+    }
+
+    private async Task ReceiveLoop()
+    {
+        var buffer = new byte[1024];
+        while (_ws != null && _ws.State == WebSocketState.Open)
+        {
+            var result = await _ws.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
+            if (result.MessageType == WebSocketMessageType.Close)
+            {
+                await _ws.CloseAsync(WebSocketCloseStatus.NormalClosure, "Closed", CancellationToken.None);
+            }
+            else
+            {
+                var msg = Encoding.UTF8.GetString(buffer, 0, result.Count);
+                Console.WriteLine("Received: " + msg);
+            }
+        }
     }
 }

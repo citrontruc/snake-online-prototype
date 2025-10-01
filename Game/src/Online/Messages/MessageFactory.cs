@@ -20,12 +20,12 @@ public class MessageFactory
     {
         if (string.IsNullOrWhiteSpace(json))
         {
-            return null; // or throw
+            return null;
         }
 
         JsonDocument doc = JsonDocument.Parse(json);
         // Check message type to find the right deserialize method
-        string? type = doc.RootElement.GetProperty("MessageType").GetString();
+        string? type = doc.RootElement.GetProperty("ThisMessageType").GetString();
         if (type is null)
         {
             throw new EventSourceException("No type was found in the message.");

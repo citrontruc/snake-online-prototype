@@ -3,7 +3,7 @@ Every client sends one of them to the server, the server sends multiple of them 
 
 public class UpdateMessage : Message
 {
-    public CellCoordinates SnakeDirection;
+    public CellCoordinates SnakeDirection { get; set; }
 
     public UpdateMessage(CellCoordinates snakeDirection, int playerId)
     {

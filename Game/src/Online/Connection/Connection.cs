@@ -1,78 +1,118 @@
-using System.Net.Sockets;
+using System.Net.WebSockets;
 using System.Text;
 
 public class Connection
 {
-    private List<TcpClient> _clients = new();
-    private List<NetworkStream> _streams = new();
+    private List<WebSocket> _sockets = new();
     private MessageFactory _messageFactory => ServiceLocator.Get<MessageFactory>();
+    private Queue<Message> _messageQueue = new();
 
     public bool CheckIfHasPlayer()
     {
-        return _clients.Count() > 0;
+        return _sockets.Count > 0;
     }
 
-    public void AddConnection(TcpClient client)
+    public void AddConnection(WebSocket socket)
     {
-        _clients.Add(client);
-        _streams.Add(client.GetStream());
+        _sockets.Add(socket);
     }
 
-    public void Disconnect()
+    public bool CheckIfConnected()
     {
-        foreach (NetworkStream stream in _streams)
-        {
-            stream.Close();
-        }
-        foreach (TcpClient client in _clients)
-        {
-            client.Close();
-        }
-        _clients = new();
-        _streams = new();
+        return _sockets.Count() > 0;
     }
 
-    public void SendMessage(Message message)
+    public bool CheckIfHasMessage()
     {
-        byte[] data = new byte[1024];
-        data = Encoding.UTF8.GetBytes(_messageFactory.ToJson(message));
-        foreach (NetworkStream _playerStream in _streams)
-        {
-            _playerStream.Write(data, 0, data.Length);
-        }
+        return _messageQueue.Count() > 0;
     }
 
-    public bool CheckIfNewMessage()
+    /// <summary>
+    /// A method to disconnect all our sockets in order to reset our connection object.
+    /// </summary>
+    /// <returns></returns>
+    public async Task Disconnect()
     {
-        foreach (NetworkStream _playerStream in _streams)
+        foreach (WebSocket socket in _sockets)
         {
-            if (_playerStream.DataAvailable)
-                return true;
-        }
-        return false;
-    }
-
-    public async Task<List<Message>> ReceiveMessage()
-    {
-        List<Message> messageList = new();
-        foreach (NetworkStream _playerStream in _streams)
-        {
-            if (!_playerStream.DataAvailable)
-                continue; // skip streams with no data
-
-            byte[] buffer = new byte[1024];
-            int bytesRead = await _playerStream.ReadAsync(buffer, 0, buffer.Length);
-            if (bytesRead > 0)
+            if (socket.State == WebSocketState.Open)
             {
-                string byteString = Encoding.UTF8.GetString(buffer, 0, bytesRead);
-                Console.WriteLine(byteString);
-                Message? messageValue = _messageFactory.FromJson(byteString);
-                if (!(messageValue is null))
+                await socket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Closing", CancellationToken.None);
+            }
+            socket.Dispose();
+        }
+        _sockets = new();
+    }
+
+    /// <summary>
+    /// A methode to send a message to all the other players
+    /// </summary>
+    /// <param name="message">The message to send.</param>
+    /// <returns></returns>
+    public async Task SendMessage(Message message)
+    {
+        byte[] data = Encoding.UTF8.GetBytes(_messageFactory.ToJson(message));
+        foreach (WebSocket socket in _sockets)
+        {
+            if (socket.State == WebSocketState.Open)
+            {
+                await socket.SendAsync(
+                    new ArraySegment<byte>(data, 0, data.Length),
+                    WebSocketMessageType.Text,
+                    endOfMessage: true,
+                    cancellationToken: CancellationToken.None
+                );
+            }
+        }
+    }
+
+    public async Task ReceiveMessage()
+    {
+        var buffer = new byte[1024];
+
+        foreach (WebSocket socket in _sockets)
+        {
+            if (socket.State != WebSocketState.Open)
+                continue;
+
+            if (socket is ClientWebSocket clientSocket)
+            {
+                // client read loop
+                if (clientSocket.State == WebSocketState.Open)
                 {
-                    messageList.Add(messageValue);
+                    var result = await clientSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
+                    if (result.Count > 0 && result.MessageType == WebSocketMessageType.Text)
+                    {
+                        string byteString = Encoding.UTF8.GetString(buffer, 0, result.Count);
+                        Console.WriteLine(byteString);
+                        var messageValue = _messageFactory.FromJson(byteString);
+                        if (messageValue is not null)
+                            _messageQueue.Enqueue(messageValue);
+                    }
+                }
+            }
+            else
+            {
+                // server socket
+                var result = await socket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
+                if (result.Count > 0 && result.MessageType == WebSocketMessageType.Text)
+                {
+                    string byteString = Encoding.UTF8.GetString(buffer, 0, result.Count);
+                    Console.WriteLine(byteString);
+                    var messageValue = _messageFactory.FromJson(byteString);
+                    if (messageValue is not null)
+                        _messageQueue.Enqueue(messageValue);
                 }
             }
         }
-        return messageList;
+    }
+
+    public Message? ReadMessage()
+    {
+        if (CheckIfHasMessage())
+        {
+            return _messageQueue.Dequeue();
+        }
+        return null;
     }
 }

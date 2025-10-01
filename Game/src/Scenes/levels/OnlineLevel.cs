@@ -1,5 +1,6 @@
 /* An online level for snake.*/
 
+using System.Threading.Tasks;
 using Raylib_cs;
 
 public class OnlineLevel : Level
@@ -179,7 +180,7 @@ public class OnlineLevel : Level
         }
     }
 
-    private void CheckSnake(float deltaTime)
+    private async Task CheckSnake(float deltaTime)
     {
         foreach (int snakeID in _snakeIDList)
         {
@@ -200,20 +201,14 @@ public class OnlineLevel : Level
             }
             else
             {
-                bool newMessage = _gameConnection.CheckIfNewMessage();
-                if (newMessage)
+                await _gameConnection.ReceiveMessage();
+                // We block our chain until we process all the messages in our chain.
+                while (_gameConnection.CheckIfHasMessage())
                 {
-                    // We block our chain until we process all the messages in our chain.
-                    List<Message> messageList = _gameConnection
-                        .ReceiveMessage()
-                        .GetAwaiter()
-                        .GetResult();
-                    foreach (Message message in messageList)
+                    Message message = _gameConnection.ReadMessage();
+                    if (message.GetMessageType() == Message.MessageType.Update)
                     {
-                        if (message.GetMessageType() == Message.MessageType.Update)
-                        {
-                            playerSnake.GiveDirection(((UpdateMessage)message).SnakeDirection);
-                        }
+                        playerSnake.GiveDirection(((UpdateMessage)message).SnakeDirection);
                     }
                 }
             }

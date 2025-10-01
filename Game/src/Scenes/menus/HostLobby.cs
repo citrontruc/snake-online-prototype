@@ -60,7 +60,6 @@ public class HostLobby : Menu
     public void LaunchServer()
     {
         _snakeServer.LaunchServer();
-        _snakeServer.ConnectToClient();
     }
 
     private string CreatePassKey()

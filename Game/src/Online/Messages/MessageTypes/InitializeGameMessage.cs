@@ -3,7 +3,9 @@ It contains the information for the board of the game as well as the id the play
 
 public class InitializeGame : Message
 {
-    public string test = "312";
+    public string test { get; set; } = "312"; // If you don't write get; set; you don't get the values.
+
+    public InitializeGame() { }
 
     public InitializeGame(int playerId)
     {
