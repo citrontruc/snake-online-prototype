@@ -5,7 +5,6 @@ public abstract class Message
     public enum MessageType
     {
         Update,
-        ConnectionCreate,
         InitializeGame,
     }
 
