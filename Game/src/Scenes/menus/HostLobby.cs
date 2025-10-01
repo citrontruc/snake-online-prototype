@@ -42,9 +42,6 @@ public class HostLobby : Menu
         );
 
         SetSelectedOptionCharacteristics(1.2f, Color.Red);
-
-        AddOption("Back to menu", ReturnToMainMenu);
-        _selectedOption = 0;
     }
 
     public override void Load()
@@ -53,13 +50,17 @@ public class HostLobby : Menu
         _snakeServer.SetConnection(_gameConnection);
         //_serverPassKey = CreatePassKey();
         LaunchServer();
+
+        ResetOption();
+        AddOption("Back to menu", ReturnToMainMenu);
+        _selectedOption = 0;
     }
 
     public override void Unload() { }
 
     public void LaunchServer()
     {
-        _snakeServer.LaunchServer();
+        _snakeServer?.LaunchServer();
     }
 
     private string CreatePassKey()

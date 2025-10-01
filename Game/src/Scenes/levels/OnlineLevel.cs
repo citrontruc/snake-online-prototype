@@ -76,6 +76,13 @@ public class OnlineLevel : Level
         initilializePlayer();
     }
 
+    public override void Unload()
+    {
+        _gameConnection?.Disconnect();
+        _entityHandler.Reset();
+        _playerHandler.Reset();
+    }
+
     private void initilializePlayer()
     {
         _playerHandler.SetGrid(_level1Grid);
@@ -101,7 +108,7 @@ public class OnlineLevel : Level
                 break;
             }
             default:
-                break;
+                throw new InvalidProgramException("PlayerRole must either be client or server.");
         }
 
         _currentPlayerID = _thisPlayerSnake.GetID();
@@ -120,13 +127,6 @@ public class OnlineLevel : Level
     #endregion
 
     #region Scene transitions
-    public override void Unload()
-    {
-        _gameConnection?.Disconnect();
-        _entityHandler.Reset();
-        _playerHandler.Reset();
-    }
-
     private void GameOver()
     {
         _sceneHandler.SetNewScene(_gameOverMenu);
@@ -153,9 +153,6 @@ public class OnlineLevel : Level
     {
         _playerHandler.Update(deltaTime);
         CheckSnake(deltaTime);
-        // Send snake position and direction.
-        // Check other player snake movement.
-        // Update other snakes based on input.
         CheckApple();
         _level1Grid?.Update();
         if (_currentState == GameState.gameOver)
@@ -205,8 +202,8 @@ public class OnlineLevel : Level
                 // We block our chain until we process all the messages in our chain.
                 while (_gameConnection.CheckIfHasMessage())
                 {
-                    Message message = _gameConnection.ReadMessage();
-                    if (message.GetMessageType() == Message.MessageType.Update)
+                    Message? message = _gameConnection.ReadMessage();
+                    if (message?.GetMessageType() == Message.MessageType.Update)
                     {
                         playerSnake.GiveDirection(((UpdateMessage)message).SnakeDirection);
                     }

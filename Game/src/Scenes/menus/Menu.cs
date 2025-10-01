@@ -238,6 +238,12 @@ public abstract class Menu : Scene
     #endregion
 
     #region Options
+
+    public void ResetOption()
+    {
+        _listMenuOptions = new();
+        _listMenuActions = new();
+    }
     public void AddOption(string optionName, Action action)
     {
         _listMenuOptions.Add(optionName);
