@@ -6,12 +6,12 @@ public abstract class Message
     {
         Update,
         ConnectionCreate,
-        InitializeGame
+        InitializeGame,
     }
 
     protected MessageType _thisMessageType;
     public MessageType ThisMessageType => _thisMessageType;
-    public int PlayerId{ get; set; }
+    public int PlayerId { get; set; }
 
     public MessageType GetMessageType()
     {

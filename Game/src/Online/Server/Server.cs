@@ -12,7 +12,8 @@ public class SnakeServer
     {
         ServiceLocator.Register<SnakeServer>(this);
         _listener = new HttpListener();
-        _listener.Prefixes.Add($"http://+:{_dotNetVariables.ServerPort}/");;
+        _listener.Prefixes.Add($"http://+:{_dotNetVariables.ServerPort}/");
+        ;
     }
 
     public void SetConnection(Connection connection)
@@ -50,10 +51,17 @@ public class SnakeServer
         var buffer = new byte[1024];
         while (socket.State == WebSocketState.Open)
         {
-            var result = await socket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
+            var result = await socket.ReceiveAsync(
+                new ArraySegment<byte>(buffer),
+                CancellationToken.None
+            );
             if (result.MessageType == WebSocketMessageType.Close)
             {
-                await socket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Closed", CancellationToken.None);
+                await socket.CloseAsync(
+                    WebSocketCloseStatus.NormalClosure,
+                    "Closed",
+                    CancellationToken.None
+                );
             }
             else
             {

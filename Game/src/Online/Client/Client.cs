@@ -39,10 +39,17 @@ public class SnakeClient
         var buffer = new byte[1024];
         while (_ws != null && _ws.State == WebSocketState.Open)
         {
-            var result = await _ws.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
+            var result = await _ws.ReceiveAsync(
+                new ArraySegment<byte>(buffer),
+                CancellationToken.None
+            );
             if (result.MessageType == WebSocketMessageType.Close)
             {
-                await _ws.CloseAsync(WebSocketCloseStatus.NormalClosure, "Closed", CancellationToken.None);
+                await _ws.CloseAsync(
+                    WebSocketCloseStatus.NormalClosure,
+                    "Closed",
+                    CancellationToken.None
+                );
             }
             else
             {

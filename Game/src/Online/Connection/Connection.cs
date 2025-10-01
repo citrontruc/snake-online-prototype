@@ -37,7 +37,11 @@ public class Connection
         {
             if (socket.State == WebSocketState.Open)
             {
-                await socket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Closing", CancellationToken.None);
+                await socket.CloseAsync(
+                    WebSocketCloseStatus.NormalClosure,
+                    "Closing",
+                    CancellationToken.None
+                );
             }
             socket.Dispose();
         }
@@ -80,7 +84,10 @@ public class Connection
                 // client read loop
                 if (clientSocket.State == WebSocketState.Open)
                 {
-                    var result = await clientSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
+                    var result = await clientSocket.ReceiveAsync(
+                        new ArraySegment<byte>(buffer),
+                        CancellationToken.None
+                    );
                     if (result.Count > 0 && result.MessageType == WebSocketMessageType.Text)
                     {
                         string byteString = Encoding.UTF8.GetString(buffer, 0, result.Count);
@@ -94,7 +101,10 @@ public class Connection
             else
             {
                 // server socket
-                var result = await socket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
+                var result = await socket.ReceiveAsync(
+                    new ArraySegment<byte>(buffer),
+                    CancellationToken.None
+                );
                 if (result.Count > 0 && result.MessageType == WebSocketMessageType.Text)
                 {
                     string byteString = Encoding.UTF8.GetString(buffer, 0, result.Count);
