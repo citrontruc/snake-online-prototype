@@ -16,4 +16,9 @@ public abstract class Message
     {
         return _thisMessageType;
     }
+
+    public override string ToString()
+    {
+        return $"{base.ToString()} with type {ThisMessageType}";
+    }
 }

@@ -244,6 +244,7 @@ public abstract class Menu : Scene
         _listMenuOptions = new();
         _listMenuActions = new();
     }
+
     public void AddOption(string optionName, Action action)
     {
         _listMenuOptions.Add(optionName);

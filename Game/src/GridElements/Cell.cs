@@ -6,8 +6,8 @@ public struct CellCoordinates
     /// <summary>
     /// Position of a cell in a grid;
     /// </summary>
-    public int X;
-    public int Y;
+    public int X { get; set; }
+    public int Y { get; set; }
     #endregion
 
     #region Generic CellCoordinates

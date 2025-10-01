@@ -2,6 +2,7 @@
 
 using System.Diagnostics.Tracing;
 using System.Text.Json;
+using Serilog;
 using Sprache;
 
 public class MessageFactory
@@ -25,24 +26,21 @@ public class MessageFactory
 
         JsonDocument doc = JsonDocument.Parse(json);
         // Check message type to find the right deserialize method
-        string? type = doc.RootElement.GetProperty("ThisMessageType").GetString();
-        if (type is null)
+        bool foundMessage = doc.RootElement.TryGetProperty("ThisMessageType", out JsonElement type);
+        if (!foundMessage)
         {
             throw new EventSourceException("No type was found in the message.");
         }
 
-        bool parseSuccess = Enum.TryParse(type, out Message.MessageType messageType);
-        if (parseSuccess)
+        Message.MessageType messageType = (Message.MessageType)type.GetInt32();
+        return messageType switch
         {
-            return messageType switch
-            {
-                Message.MessageType.Update => JsonSerializer.Deserialize<UpdateMessage>(json),
-                Message.MessageType.InitializeGame => JsonSerializer.Deserialize<InitializeGame>(
-                    json
-                ),
-                _ => throw new ParseException($"Unknown message type: {type}"),
-            };
-        }
+            Message.MessageType.Update => JsonSerializer.Deserialize<UpdateMessage>(json),
+            Message.MessageType.InitializeGame => JsonSerializer.Deserialize<InitializeGame>(
+                json
+            ),
+            _ => throw new ParseException($"Unknown message type: {type}"),
+        };
         throw new ParseException("Could not parse a message.");
     }
 }

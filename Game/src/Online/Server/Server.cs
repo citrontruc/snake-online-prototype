@@ -65,8 +65,8 @@ public class SnakeServer
             }
             else
             {
-                var msg = Encoding.UTF8.GetString(buffer, 0, result.Count);
-                Console.WriteLine("Received: " + msg);
+                string byteString = Encoding.UTF8.GetString(buffer, 0, result.Count);
+                _serverConnection.LoadMessage(byteString);
             }
         }
     }

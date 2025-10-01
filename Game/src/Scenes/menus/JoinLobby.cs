@@ -76,7 +76,7 @@ public class JoinLobby : Menu
     public override void Update(float deltaTime)
     {
         base.Update(deltaTime);
-        int key = 0;
+        int key;
         while ((key = Raylib.GetCharPressed()) > 0)
         {
             if ((key >= 32) && (key <= 125) && (_letterCount <= MAXINPUTCHAR))
@@ -110,10 +110,9 @@ public class JoinLobby : Menu
     #region Scene Transitions
     public void SearchForGame()
     {
-        Console.WriteLine(_serverIP);
         try
         {
-            _snakeClient.JoinServer(_serverIP);
+            _snakeClient?.JoinServer(_serverIP);
             _state = ConnectionState.WaitingForHost;
         }
         catch (SocketException ex)

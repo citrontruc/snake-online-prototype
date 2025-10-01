@@ -70,50 +70,14 @@ public class Connection
         }
     }
 
-    public async Task ReceiveMessage()
+    public void LoadMessage(string byteString)
     {
-        var buffer = new byte[1024];
-
-        foreach (WebSocket socket in _sockets)
+        Console.WriteLine(byteString);
+        Message? messageValue = _messageFactory.FromJson(byteString);
+        Console.WriteLine($"messageValue: {messageValue}");
+        if (messageValue is not null)
         {
-            if (socket.State != WebSocketState.Open)
-                continue;
-
-            if (socket is ClientWebSocket clientSocket)
-            {
-                // client read loop
-                if (clientSocket.State == WebSocketState.Open)
-                {
-                    var result = await clientSocket.ReceiveAsync(
-                        new ArraySegment<byte>(buffer),
-                        CancellationToken.None
-                    );
-                    if (result.Count > 0 && result.MessageType == WebSocketMessageType.Text)
-                    {
-                        string byteString = Encoding.UTF8.GetString(buffer, 0, result.Count);
-                        Console.WriteLine(byteString);
-                        var messageValue = _messageFactory.FromJson(byteString);
-                        if (messageValue is not null)
-                            _messageQueue.Enqueue(messageValue);
-                    }
-                }
-            }
-            else
-            {
-                // server socket
-                var result = await socket.ReceiveAsync(
-                    new ArraySegment<byte>(buffer),
-                    CancellationToken.None
-                );
-                if (result.Count > 0 && result.MessageType == WebSocketMessageType.Text)
-                {
-                    string byteString = Encoding.UTF8.GetString(buffer, 0, result.Count);
-                    Console.WriteLine(byteString);
-                    var messageValue = _messageFactory.FromJson(byteString);
-                    if (messageValue is not null)
-                        _messageQueue.Enqueue(messageValue);
-                }
-            }
+             _messageQueue.Enqueue(messageValue);
         }
     }
 

@@ -177,7 +177,7 @@ public class OnlineLevel : Level
         }
     }
 
-    private async Task CheckSnake(float deltaTime)
+    private void CheckSnake(float deltaTime)
     {
         foreach (int snakeID in _snakeIDList)
         {
@@ -188,24 +188,30 @@ public class OnlineLevel : Level
             Snake playerSnake = (Snake)_entityHandler.GetEntity(snakeID);
             if (snakeID == _currentPlayerID)
             {
-                playerSnake.GiveDirection(ServiceLocator.Get<PlayerHandler>().GetPlayerDirection());
+                CellCoordinates playerDirection = ServiceLocator.Get<PlayerHandler>().GetPlayerDirection();
+                playerSnake.GiveDirection(playerDirection);
                 UpdateMessage updateMessage = new(
-                    ServiceLocator.Get<PlayerHandler>().GetPlayerDirection(),
+                    playerDirection,
                     1
                 );
                 _gameConnection?.SendMessage(updateMessage);
-                playerSnake.Update(deltaTime);
             }
             else
             {
-                await _gameConnection.ReceiveMessage();
                 // We block our chain until we process all the messages in our chain.
                 while (_gameConnection.CheckIfHasMessage())
                 {
                     Message? message = _gameConnection.ReadMessage();
+                    Console.WriteLine(message);
                     if (message?.GetMessageType() == Message.MessageType.Update)
                     {
-                        playerSnake.GiveDirection(((UpdateMessage)message).SnakeDirection);
+                        try
+                        {
+                            playerSnake.GiveDirection(((UpdateMessage)message).SnakeDirection);
+                        }
+                        catch {
+                            Console.WriteLine("something happened");
+                        }
                     }
                 }
             }
