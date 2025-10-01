@@ -4,8 +4,9 @@ using Raylib_cs;
 
 public class OnlineLevel : Level
 {
-    #region Entities of the level 
+    #region Entities of the level
     private int _appleCount = 0;
+
     /// <summary>
     /// In our case, we only have two snakes.
     /// In order to have more player, having a list of snakes tagged by playerID would be better.
@@ -15,6 +16,7 @@ public class OnlineLevel : Level
     #endregion
 
     private PlayerRole _playerRole = PlayerRole.Client;
+
     public enum PlayerRole
     {
         Server,

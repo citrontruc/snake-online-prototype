@@ -23,10 +23,11 @@ public class JoinLobby : Menu
         WaitingForHost,
         HostFound,
     }
+
     private ConnectionState _state = ConnectionState.NoHost;
     private string _serverIP = "";
     #endregion
-    
+
     #region Enter IP address of server
     private string _serverPassword = "";
     private int _letterCount => _serverIP.Count();
