@@ -77,7 +77,7 @@ public class Connection
         Console.WriteLine($"messageValue: {messageValue}");
         if (messageValue is not null)
         {
-             _messageQueue.Enqueue(messageValue);
+            _messageQueue.Enqueue(messageValue);
         }
     }
 

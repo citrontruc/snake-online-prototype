@@ -36,9 +36,7 @@ public class MessageFactory
         return messageType switch
         {
             Message.MessageType.Update => JsonSerializer.Deserialize<UpdateMessage>(json),
-            Message.MessageType.InitializeGame => JsonSerializer.Deserialize<InitializeGame>(
-                json
-            ),
+            Message.MessageType.InitializeGame => JsonSerializer.Deserialize<InitializeGame>(json),
             _ => throw new ParseException($"Unknown message type: {type}"),
         };
         throw new ParseException("Could not parse a message.");

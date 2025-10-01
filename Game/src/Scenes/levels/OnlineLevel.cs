@@ -188,12 +188,11 @@ public class OnlineLevel : Level
             Snake playerSnake = (Snake)_entityHandler.GetEntity(snakeID);
             if (snakeID == _currentPlayerID)
             {
-                CellCoordinates playerDirection = ServiceLocator.Get<PlayerHandler>().GetPlayerDirection();
+                CellCoordinates playerDirection = ServiceLocator
+                    .Get<PlayerHandler>()
+                    .GetPlayerDirection();
                 playerSnake.GiveDirection(playerDirection);
-                UpdateMessage updateMessage = new(
-                    playerDirection,
-                    1
-                );
+                UpdateMessage updateMessage = new(playerDirection, 1);
                 _gameConnection?.SendMessage(updateMessage);
             }
             else
@@ -209,7 +208,8 @@ public class OnlineLevel : Level
                         {
                             playerSnake.GiveDirection(((UpdateMessage)message).SnakeDirection);
                         }
-                        catch {
+                        catch
+                        {
                             Console.WriteLine("something happened");
                         }
                     }
