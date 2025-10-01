@@ -10,15 +10,16 @@ public abstract class Message
 
     protected MessageType _thisMessageType;
     public MessageType ThisMessageType => _thisMessageType;
+
+    /// <summary>
+    /// Unused right now. Will be used to nkow who sent the message.
+    /// </summary>
     public int PlayerId { get; set; }
 
+    #region Getters and setters
     public MessageType GetMessageType()
     {
         return _thisMessageType;
     }
-
-    public override string ToString()
-    {
-        return $"{base.ToString()} with type {ThisMessageType}";
-    }
+    #endregion
 }

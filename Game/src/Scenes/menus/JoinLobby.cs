@@ -1,3 +1,7 @@
+/*
+The screen to connect to an open lobby (you need an IP address to connect to).
+*/
+
 using System.Net.Sockets;
 using System.Numerics;
 using Raylib_cs;
@@ -12,24 +16,28 @@ public class JoinLobby : Menu
     private Connection _gameConnection = new();
     #endregion
 
+    #region Handle connection to server
     public enum ConnectionState
     {
         NoHost,
         WaitingForHost,
         HostFound,
     }
-
     private ConnectionState _state = ConnectionState.NoHost;
     private string _serverIP = "";
-    private int MAXINPUTCHAR = 15;
+    #endregion
+    
+    #region Enter IP address of server
     private string _serverPassword = "";
     private int _letterCount => _serverIP.Count();
+    private int MAXINPUTCHAR = 15;
     private Rectangle _textBox = new(
         (_screenWidth - Raylib.MeasureText("CONNECTING...", 50)) / 2.0f,
         _screenHeight / 2,
         Raylib.MeasureText("CONNECTING...", 50),
         50
     );
+    #endregion
 
     public JoinLobby()
         : base("Looking for lobbies...")

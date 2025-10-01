@@ -1,16 +1,20 @@
 /* An online level for snake.*/
 
-using System.Threading.Tasks;
 using Raylib_cs;
 
 public class OnlineLevel : Level
 {
+    #region Entities of the level 
     private int _appleCount = 0;
-    private int _playerNumber = 2;
+    /// <summary>
+    /// In our case, we only have two snakes.
+    /// In order to have more player, having a list of snakes tagged by playerID would be better.
+    /// </summary>
     private Snake? _thisPlayerSnake;
     private Snake? _otherPlayerSnake;
-    private PlayerRole _playerRole = PlayerRole.Client;
+    #endregion
 
+    private PlayerRole _playerRole = PlayerRole.Client;
     public enum PlayerRole
     {
         Server,
@@ -76,13 +80,6 @@ public class OnlineLevel : Level
         initilializePlayer();
     }
 
-    public override void Unload()
-    {
-        _gameConnection?.Disconnect();
-        _entityHandler.Reset();
-        _playerHandler.Reset();
-    }
-
     private void initilializePlayer()
     {
         _playerHandler.SetGrid(_level1Grid);
@@ -124,17 +121,19 @@ public class OnlineLevel : Level
         _appleIDList.Add(apple.GetID());
         _level1Grid.Update();
     }
+
+    public override void Unload()
+    {
+        _gameConnection?.Disconnect();
+        _entityHandler.Reset();
+        _playerHandler.Reset();
+    }
     #endregion
 
     #region Scene transitions
     private void GameOver()
     {
         _sceneHandler.SetNewScene(_gameOverMenu);
-    }
-
-    public void SetPlayerNumber(int playerNumber)
-    {
-        _playerNumber = playerNumber;
     }
 
     public void SetConnection(Connection connection)
@@ -251,6 +250,5 @@ public class OnlineLevel : Level
             _hudColor
         );
     }
-
     #endregion
 }

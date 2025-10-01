@@ -1,12 +1,17 @@
+/**/
+
 using System.Net;
 using System.Net.WebSockets;
 using System.Text;
 
 public class SnakeServer
 {
-    private DotNetVariables _dotNetVariables => ServiceLocator.Get<DotNetVariables>();
-    private HttpListener _listener;
+    #region Connection parameters
     private Connection _serverConnection = new();
+    private HttpListener _listener;
+    #endregion
+
+    private DotNetVariables _dotNetVariables => ServiceLocator.Get<DotNetVariables>();
 
     public SnakeServer()
     {
@@ -16,11 +21,19 @@ public class SnakeServer
         ;
     }
 
+    #region Getters and setters
     public void SetConnection(Connection connection)
     {
         _serverConnection = connection;
     }
+    #endregion
 
+    #region Launch the server and launch message receive loop.
+    /// <summary>
+    /// We launch our server which will connect in the background and unpack messages.
+    /// Note: we should do a verification of who tries to connect.
+    /// </summary>
+    /// <returns> Async task that recovers message while loop is active. </returns>
     public async Task LaunchServer()
     {
         _listener.Start();
@@ -68,4 +81,5 @@ public class SnakeServer
             }
         }
     }
+    #endregion
 }

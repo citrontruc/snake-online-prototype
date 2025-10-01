@@ -2,7 +2,6 @@
 
 using System.Diagnostics.Tracing;
 using System.Text.Json;
-using Serilog;
 using Sprache;
 
 public class MessageFactory
@@ -12,6 +11,7 @@ public class MessageFactory
         ServiceLocator.Register<MessageFactory>(this);
     }
 
+    #region Pasrsing of messages
     public string ToJson(Message message)
     {
         return JsonSerializer.Serialize(message, message.GetType());
@@ -41,4 +41,5 @@ public class MessageFactory
         };
         throw new ParseException("Could not parse a message.");
     }
+    #endregion
 }

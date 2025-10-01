@@ -1,3 +1,7 @@
+/*
+The screen to create a game and wait for players to connect.
+*/
+
 using System.Numerics;
 using Raylib_cs;
 
@@ -44,6 +48,7 @@ public class HostLobby : Menu
         SetSelectedOptionCharacteristics(1.2f, Color.Red);
     }
 
+    #region Initialization
     public override void Load()
     {
         _gameConnection = new();
@@ -72,6 +77,7 @@ public class HostLobby : Menu
         }
         return passKey;
     }
+    #endregion
 
     public override void Update(float deltaTime)
     {

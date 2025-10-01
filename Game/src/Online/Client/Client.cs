@@ -1,17 +1,23 @@
+/* A class to connect to a server and create a connection object to exchange messages.*/
+
 using System.Net.WebSockets;
 using System.Text;
 
 public class SnakeClient
 {
-    private static DotNetVariables _dotNetVariables => ServiceLocator.Get<DotNetVariables>();
+    #region Connection parameters
     private ClientWebSocket? _ws;
     private Connection _serverConnection = new();
+    #endregion
+
+    private static DotNetVariables _dotNetVariables => ServiceLocator.Get<DotNetVariables>();
 
     public SnakeClient()
     {
         ServiceLocator.Register<SnakeClient>(this);
     }
 
+    #region Setters and getters
     public void SetConnection(Connection connection)
     {
         _serverConnection = connection;
@@ -22,7 +28,14 @@ public class SnakeClient
         _ws?.Dispose();
         _ws = null;
     }
+    #endregion
 
+    #region Connection to server and loop
+    /// <summary>
+    /// We connect to the server then throw a loop that will receive all the messages.
+    /// </summary>
+    /// <param name="serverIP"> Server to connect to. </param>
+    /// <returns> Async task that connects to the websocket and stores messages.</returns>
     public async Task JoinServer(string serverIP)
     {
         _ws = new ClientWebSocket();
@@ -57,4 +70,5 @@ public class SnakeClient
             }
         }
     }
+    #endregion
 }

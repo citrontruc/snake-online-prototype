@@ -1,12 +1,17 @@
+/* A connection object contains the list of all the connected sockets and a queue if all messages received.*/
+
 using System.Net.WebSockets;
 using System.Text;
 
 public class Connection
 {
+    #region Connection variables
     private List<WebSocket> _sockets = new();
     private MessageFactory _messageFactory => ServiceLocator.Get<MessageFactory>();
     private Queue<Message> _messageQueue = new();
+    #endregion
 
+    #region Getters and Setters
     public bool CheckIfHasPlayer()
     {
         return _sockets.Count > 0;
@@ -26,6 +31,7 @@ public class Connection
     {
         return _messageQueue.Count() > 0;
     }
+    #endregion
 
     /// <summary>
     /// A method to disconnect all our sockets in order to reset our connection object.
@@ -48,6 +54,7 @@ public class Connection
         _sockets = new();
     }
 
+    #region Message Handling
     /// <summary>
     /// A methode to send a message to all the other players
     /// </summary>
@@ -87,4 +94,5 @@ public class Connection
         }
         return null;
     }
+    #endregion
 }
