@@ -4,7 +4,7 @@ using Raylib_cs;
 
 public static class GameHandler
 {
-    #region Rzlated classes
+    #region Related classes
     private static InputHandler? _inputHandler;
     private static SceneHandler? _sceneHandler;
     private static EntityHandler? _entityHandler;
@@ -39,7 +39,9 @@ public static class GameHandler
         DotNetVariables dotnetVariables = new();
         HostLobby hostLobby = new();
         JoinLobby joinLobby = new();
+        MessageFactory messageFactory = new();
         SnakeServer snakeServer = new();
+        SnakeClient snakeClient = new();
         _inputHandler = new();
         _sceneHandler = new(mainMenu);
         _entityHandler = new();

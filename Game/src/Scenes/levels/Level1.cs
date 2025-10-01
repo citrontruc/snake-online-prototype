@@ -26,6 +26,7 @@ public class Level1 : Level
     private GameState _currentState = GameState.play;
     private List<int> _appleIDList = new();
     private List<int> _snakeIDList = new();
+    private int _currentPlayerID = 0;
     #endregion
 
     #region Draw properties
@@ -73,6 +74,7 @@ public class Level1 : Level
         _snakeIDList = new();
         CellCoordinates snakePosition = new(5, 5);
         Snake snake = new(snakePosition, _level1Grid, 3);
+        _currentPlayerID = snake.GetID();
         _snakeIDList.Add(snake.GetID());
         _level1Grid.Update();
     }
@@ -136,7 +138,12 @@ public class Level1 : Level
             {
                 _currentState = GameState.gameOver;
             }
-            _entityHandler.GetEntity(snakeID).Update(deltaTime);
+            if (snakeID == _currentPlayerID)
+            {
+                Snake playerSnake = (Snake)_entityHandler.GetEntity(snakeID);
+                playerSnake.GiveDirection(ServiceLocator.Get<PlayerHandler>().GetPlayerDirection());
+                playerSnake.Update(deltaTime);
+            }
         }
     }
     #endregion

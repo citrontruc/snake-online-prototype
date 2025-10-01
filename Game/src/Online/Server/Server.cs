@@ -1,100 +1,73 @@
-using System;
-using System.Collections.Concurrent;
 using System.Net;
-using System.Net.Sockets;
+using System.Net.WebSockets;
 using System.Text;
-using System.Threading;
 
 public class SnakeServer
 {
     private DotNetVariables _dotNetVariables => ServiceLocator.Get<DotNetVariables>();
-    private TcpListener _server;
-    private List<TcpClient> _clients = new();
-    private ConcurrentDictionary<int, string> _latestInputs = new();
-    private int _maxPlayers = 3;
-    private int _currentPlayers = 0;
+    private HttpListener _listener;
+    private Connection _serverConnection = new();
 
     public SnakeServer()
     {
         ServiceLocator.Register<SnakeServer>(this);
-        _server = new TcpListener(IPAddress.Any, _dotNetVariables.ServerPort);
+        _listener = new HttpListener();
+        _listener.Prefixes.Add($"http://+:{_dotNetVariables.ServerPort}/");
+        ;
     }
 
-    public void LaunchServer()
+    public void SetConnection(Connection connection)
     {
-        _server.Start();
+        _serverConnection = connection;
+    }
+
+    public async Task LaunchServer()
+    {
+        _listener.Start();
         Console.WriteLine("Server started. Waiting for client...");
-    }
 
-    /// <summary>
-    /// We accept a client connection and check that the client has the right session name.
-    /// If the session name is incorrect, we refuse the connection.
-    /// </summary>
-    public void ConnectToClient()
-    {
-        Console.WriteLine("Waiting for clients to connect...");
-        TcpClient client = _server.AcceptTcpClient();
-        Console.WriteLine("Client connected!");
-        NetworkStream stream = client.GetStream();
-
-        // A new client must always specify the session name before connecting.
-        byte[] buffer = new byte[256];
-        int bytesRead = stream.Read(buffer, 0, buffer.Length);
-        string msg = Encoding.UTF8.GetString(buffer, 0, bytesRead);
-
-        // We accept clients with the correct session name and refuse other clients.
-        if (msg == _dotNetVariables.SessionName)
+        while (true)
         {
-            if (_currentPlayers + 1 < _maxPlayers)
+            HttpListenerContext context = await _listener.GetContextAsync();
+
+            if (context.Request.IsWebSocketRequest)
             {
-                Console.WriteLine("✅ Correct session name, client accepted");
-                _clients.Add(client);
-                _currentPlayers++;
+                HttpListenerWebSocketContext wsContext = await context.AcceptWebSocketAsync(null);
+                Console.WriteLine("Client connected via WebSocket!");
+                _serverConnection.AddConnection(wsContext.WebSocket);
+
+                _ = HandleClient(wsContext.WebSocket);
             }
             else
             {
-                Console.WriteLine("Too many players");
-                client.Close();
+                context.Response.StatusCode = 400;
+                context.Response.Close();
             }
-        }
-        else
-        {
-            Console.WriteLine(msg);
-            Console.WriteLine(_dotNetVariables.SessionName);
-            Console.WriteLine("❌ Wrong session name, closing connection");
-            client.Close();
         }
     }
 
-    public void CreateClientThreads()
+    private async Task HandleClient(WebSocket socket)
     {
-        foreach (TcpClient client in _clients)
+        var buffer = new byte[1024];
+        while (socket.State == WebSocketState.Open)
         {
-            NetworkStream stream = client.GetStream();
-            new Thread(() =>
+            var result = await socket.ReceiveAsync(
+                new ArraySegment<byte>(buffer),
+                CancellationToken.None
+            );
+            if (result.MessageType == WebSocketMessageType.Close)
             {
-                byte[] buffer = new byte[256];
-                while (true)
-                {
-                    int bytesRead = stream.Read(buffer, 0, buffer.Length);
-                    if (bytesRead == 0)
-                        break;
-                    string msg = Encoding.UTF8.GetString(buffer, 0, bytesRead);
-                    Console.WriteLine("Client says: " + msg);
-                }
-            }).Start();
-        }
-
-        // Send commands manually (for testing)
-        while (true)
-        {
-            foreach (var kvp in _latestInputs)
-            {
-                int player = kvp.Key;
-                string message = kvp.Value;
-                Console.WriteLine($"{player.ToString()} {message}");
+                await socket.CloseAsync(
+                    WebSocketCloseStatus.NormalClosure,
+                    "Closed",
+                    CancellationToken.None
+                );
             }
-            Thread.Sleep(100);
+            else
+            {
+                string byteString = Encoding.UTF8.GetString(buffer, 0, result.Count);
+                _serverConnection.LoadMessage(byteString);
+            }
         }
     }
 }

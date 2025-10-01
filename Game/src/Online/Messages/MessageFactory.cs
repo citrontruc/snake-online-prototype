@@ -2,37 +2,43 @@
 
 using System.Diagnostics.Tracing;
 using System.Text.Json;
+using Serilog;
 using Sprache;
 
-public static class MessageFactory
+public class MessageFactory
 {
-    static MessageFactory() { }
+    public MessageFactory()
+    {
+        ServiceLocator.Register<MessageFactory>(this);
+    }
 
-    public static string ToJson(Message message)
+    public string ToJson(Message message)
     {
         return JsonSerializer.Serialize(message, message.GetType());
     }
 
-    public static Message? FromJson(string json)
+    public Message? FromJson(string json)
     {
+        if (string.IsNullOrWhiteSpace(json))
+        {
+            return null;
+        }
+
         JsonDocument doc = JsonDocument.Parse(json);
         // Check message type to find the right deserialize method
-        string? type = doc.RootElement.GetProperty("MessageType").GetString();
-        if (type is null)
+        bool foundMessage = doc.RootElement.TryGetProperty("ThisMessageType", out JsonElement type);
+        if (!foundMessage)
         {
             throw new EventSourceException("No type was found in the message.");
         }
 
-        bool parseSuccess = Enum.TryParse(type, out Message.MessageType messageType);
-        if (parseSuccess)
+        Message.MessageType messageType = (Message.MessageType)type.GetInt32();
+        return messageType switch
         {
-            return messageType switch
-            {
-                Message.MessageType.Update => JsonSerializer.Deserialize<UpdateMessage>(json),
-                Message.MessageType.Disconnect => JsonSerializer.Deserialize<UpdateMessage>(json),
-                _ => throw new ParseException($"Unknown message type: {type}"),
-            };
-        }
+            Message.MessageType.Update => JsonSerializer.Deserialize<UpdateMessage>(json),
+            Message.MessageType.InitializeGame => JsonSerializer.Deserialize<InitializeGame>(json),
+            _ => throw new ParseException($"Unknown message type: {type}"),
+        };
         throw new ParseException("Could not parse a message.");
     }
 }

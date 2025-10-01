@@ -3,9 +3,13 @@ It contains the information for the board of the game as well as the id the play
 
 public class InitializeGame : Message
 {
-    public InitializeGame(UserInput userInput, int playerId)
+    public string test { get; set; } = "312"; // If you don't write get; set; you don't get the values.
+
+    public InitializeGame() { }
+
+    public InitializeGame(int playerId)
     {
-        _thisMessageType = MessageType.Update;
+        _thisMessageType = MessageType.InitializeGame;
         PlayerId = playerId;
     }
 }

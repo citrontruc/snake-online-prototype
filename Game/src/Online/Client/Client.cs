@@ -1,47 +1,61 @@
-using System;
-using System.Net.Sockets;
+using System.Net.WebSockets;
 using System.Text;
-using System.Threading;
 
-class SnakeClient
+public class SnakeClient
 {
     private static DotNetVariables _dotNetVariables => ServiceLocator.Get<DotNetVariables>();
+    private ClientWebSocket? _ws;
+    private Connection _serverConnection = new();
 
     public SnakeClient()
     {
         ServiceLocator.Register<SnakeClient>(this);
     }
 
-    public static void JoinServer()
+    public void SetConnection(Connection connection)
     {
-        Console.Write("Enter server IP: ");
-        string serverIp = Console.ReadLine() ?? "";
+        _serverConnection = connection;
+    }
 
-        TcpClient client = new TcpClient(_dotNetVariables.ServerIP, _dotNetVariables.ServerPort);
-        Console.WriteLine("Connected to server!");
+    public void Reset()
+    {
+        _ws?.Dispose();
+        _ws = null;
+    }
 
-        NetworkStream stream = client.GetStream();
+    public async Task JoinServer(string serverIP)
+    {
+        _ws = new ClientWebSocket();
+        var uri = new Uri($"ws://{serverIP}:{_dotNetVariables.ServerPort}/");
+        await _ws.ConnectAsync(uri, CancellationToken.None);
+        Console.WriteLine("Connected to server via WebSocket!");
+        _serverConnection.AddConnection(_ws);
 
-        // Background thread to receive commands
-        new Thread(() =>
+        _ = ReceiveLoop();
+    }
+
+    private async Task ReceiveLoop()
+    {
+        var buffer = new byte[1024];
+        while (_ws != null && _ws.State == WebSocketState.Open)
         {
-            byte[] buffer = new byte[256];
-            while (true)
+            var result = await _ws.ReceiveAsync(
+                new ArraySegment<byte>(buffer),
+                CancellationToken.None
+            );
+            if (result.MessageType == WebSocketMessageType.Close)
             {
-                int bytesRead = stream.Read(buffer, 0, buffer.Length);
-                if (bytesRead == 0)
-                    break;
-                string msg = Encoding.UTF8.GetString(buffer, 0, bytesRead);
-                Console.WriteLine("Server says: " + msg);
+                await _ws.CloseAsync(
+                    WebSocketCloseStatus.NormalClosure,
+                    "Closed",
+                    CancellationToken.None
+                );
             }
-        }).Start();
-
-        // Send commands manually (for testing)
-        while (true)
-        {
-            string cmd = Console.ReadLine() ?? "";
-            byte[] data = Encoding.UTF8.GetBytes(cmd);
-            stream.Write(data, 0, data.Length);
+            else
+            {
+                string byteString = Encoding.UTF8.GetString(buffer, 0, result.Count);
+                _serverConnection.LoadMessage(byteString);
+            }
         }
     }
 }

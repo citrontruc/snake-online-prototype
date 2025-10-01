@@ -5,11 +5,20 @@ public abstract class Message
     public enum MessageType
     {
         Update,
-        ConnectionCreate,
         InitializeGame,
-        Disconnect,
     }
 
     protected MessageType _thisMessageType;
-    public int PlayerId;
+    public MessageType ThisMessageType => _thisMessageType;
+    public int PlayerId { get; set; }
+
+    public MessageType GetMessageType()
+    {
+        return _thisMessageType;
+    }
+
+    public override string ToString()
+    {
+        return $"{base.ToString()} with type {ThisMessageType}";
+    }
 }
